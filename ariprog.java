@@ -46,13 +46,6 @@ public class ariprog {
 		out.close();
 	}
 
-	public static int isInArray(int[] array, int number){
-		for(int i=0;i<array.length;i++){
-			if(array[i]==number) return i;
-		}
-		return -1;
-	}
-
 	public static ArrayList<pair> removeDuplicates(ArrayList<pair> pairs){
 		for(int i=0;i<pairs.size();i++){
 			int k=0;
