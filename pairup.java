@@ -28,7 +28,6 @@ public class pairup{
 			if(cows.get(maxIndex).getAmount()==0) maxIndex--;
 		}
 		if(cows.size()==1) result = cows.get(0).getValue();
-		if(N==100000) Thread.sleep(1000);
 		out.println(result);
 		out.close();
 	}
