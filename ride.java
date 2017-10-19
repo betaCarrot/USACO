@@ -16,7 +16,6 @@ public class ride {
     StringTokenizer st2 = new StringTokenizer(f.readLine());
     String group = st2.nextToken();
     int groupIndex = convertStringIntoInt(group);
-    //System.out.println(groupIndex);
     if((cometIndex%47)==(groupIndex%47)) out.println("GO");
 	else out.println("STAY");
     out.close();
