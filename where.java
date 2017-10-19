@@ -82,8 +82,7 @@ public class where{
 	}
 
 	public static int convertToInt(String s){
-		int ascii = (int) s.charAt(0);
-		return ascii-65;
+		return ((int) (s.charAt(0)))-65;
 	}
 }
 
