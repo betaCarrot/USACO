@@ -35,22 +35,6 @@ public class cowroute {
 				result = Math.min(result, costs[i]);
 			}
 		}
-		for (int i = 0; i < N; i++) {
-			int aIndex = findIndex(map[i], A);
-			if (aIndex == -1)
-				continue;
-			int cost1 = costs[i];
-			for (int k = aIndex + 1; k < map[i].length; k++) {
-				if (map[i][k] == 0)
-					break;
-				int medium = map[i][k];
-				for (int index = 0; index < N; index++) {
-					if (search(map[index], medium)) {
-						result = Math.min(result, cost1 + costs[index]);
-					}
-				}
-			}
-		}
 		if (result == Integer.MAX_VALUE)
 			out.println(-1);
 		else
