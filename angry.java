@@ -57,20 +57,4 @@ public class angry {
 		}
 		return true;
 	}
-
-	public static void printArray(boolean[] array) {
-		for (boolean b : array) {
-			if (b == true)
-				System.out.print(true + "  ");
-			else
-				System.out.print(false + " ");
-		}
-		System.out.println();
-	}
-
-	public static void printArray(int[] array) {
-		for (int i : array)
-			System.out.print(i + " ");
-		System.out.println();
-	}
 }
