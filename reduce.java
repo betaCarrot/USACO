@@ -4,137 +4,86 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class reduce {
+	private static int[] xs;
+	private static int[] ys;
+	private static int[][] cows;
+	private static int N;
+	private static int[][] map = new int[4][4];
+	private static final int LEFT = 0;
+	private static final int RIGHT = 1;
+	private static final int TOP = 2;
+	private static final int BOTTOM = 3;
+	private static int result = Integer.MAX_VALUE;
+
 	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("reduce.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("reduce.out")));
-		int N = Integer.parseInt(f.readLine());
-		int[] xs = new int[N];
-		int[] ys = new int[N];
+		N = Integer.parseInt(f.readLine());
+		xs = new int[N];
+		ys = new int[N];
+		cows = new int[N][2];
 		for (int i = 0; i < N; i++) {
 			StringTokenizer st = new StringTokenizer(f.readLine());
-			xs[i] = Integer.parseInt(st.nextToken());
-			ys[i] = Integer.parseInt(st.nextToken());
+			int x = Integer.parseInt(st.nextToken());
+			xs[i] = x;
+			int y = Integer.parseInt(st.nextToken());
+			ys[i] = y;
+			cows[i][0] = x;
+			cows[i][1] = y;
 		}
-		int minX = Integer.MAX_VALUE;
-		int minY = Integer.MAX_VALUE;
-		int maxX = 0;
-		int maxY = 0;
-		int minXIndex = -1;
-		int minYIndex = -1;
-		int maxXIndex = -1;
-		int maxYIndex = -1;
-		int minXCount = 0;
-		int minYCount = 0;
-		int maxXCount = 0;
-		int maxYCount = 0;
-		boolean minXUnique = true;
-		boolean minYUnique = true;
-		boolean maxXUnique = true;
-		boolean maxYUnique = true;
-		for (int i = 0; i < N; i++) {
-			if (xs[i] < minX) {
-				minX = xs[i];
-				minXIndex = i;
-			}
-			if (xs[i] > maxX) {
-				maxX = xs[i];
-				maxXIndex = i;
-			}
-			if (ys[i] < minY) {
-				minY = ys[i];
-				minYIndex = i;
-			}
-			if (ys[i] > maxY) {
-				maxY = ys[i];
-				maxYIndex = i;
-			}
+		Arrays.sort(xs);
+		Arrays.sort(ys);
+		for (int i = 0; i < 4; i++) {
+			map[LEFT][i] = xs[i];
 		}
-		for (int i = 0; i < N; i++) {
-			if (xs[i] == minX)
-				minXCount++;
-			if (ys[i] == minY)
-				minYCount++;
-			if (xs[i] == maxX)
-				maxXCount++;
-			if (ys[i] == maxY)
-				maxYCount++;
+		for (int i = 0; i < 4; i++) {
+			map[RIGHT][i] = xs[N - 1 - i];
 		}
-		if (minXCount > 1)
-			minXUnique = false;
-		if (maxXCount > 1)
-			maxXUnique = false;
-		if (minYCount > 1)
-			minYUnique = false;
-		if (maxYCount > 1)
-			maxYUnique = false;
-		int result = (maxX - minX) * (maxY - minY);
-		if (minXUnique) {
-			ArrayList<Integer> removedXs = new ArrayList<Integer>();
-			ArrayList<Integer> removedYs = new ArrayList<Integer>();
-			for (int i = 0; i < N; i++) {
-				removedXs.add(xs[i]);
-				removedYs.add(ys[i]);
-			}
-			removedXs.remove(minXIndex);
-			removedYs.remove(minXIndex);
-			int area = calculateArea(removedXs, removedYs);
-			result = Math.min(result, area);
+		for (int i = 0; i < 4; i++) {
+			map[TOP][i] = ys[i];
 		}
-		if (maxXUnique) {
-			ArrayList<Integer> removedXs = new ArrayList<Integer>();
-			ArrayList<Integer> removedYs = new ArrayList<Integer>();
-			for (int i = 0; i < N; i++) {
-				removedXs.add(xs[i]);
-				removedYs.add(ys[i]);
-			}
-			removedXs.remove(maxXIndex);
-			removedYs.remove(maxXIndex);
-			int area = calculateArea(removedXs, removedYs);
-			result = Math.min(result, area);
+		for (int i = 0; i < 4; i++) {
+			map[BOTTOM][i] = ys[N - 1 - i];
 		}
-		if (minYUnique) {
-			ArrayList<Integer> removedXs = new ArrayList<Integer>();
-			ArrayList<Integer> removedYs = new ArrayList<Integer>();
-			for (int i = 0; i < N; i++) {
-				removedXs.add(xs[i]);
-				removedYs.add(ys[i]);
-			}
-			removedXs.remove(minYIndex);
-			removedYs.remove(minYIndex);
-			int area = calculateArea(removedXs, removedYs);
-			result = Math.min(result, area);
-		}
-		if (maxYUnique) {
-			ArrayList<Integer> removedXs = new ArrayList<Integer>();
-			ArrayList<Integer> removedYs = new ArrayList<Integer>();
-			for (int i = 0; i < N; i++) {
-				removedXs.add(xs[i]);
-				removedYs.add(ys[i]);
-			}
-			removedXs.remove(maxYIndex);
-			removedYs.remove(maxYIndex);
-			int area = calculateArea(removedXs, removedYs);
-			result = Math.min(result, area);
-		}
-		out.print(result);
+		fillArray(0, new int[4]);
+		out.println(result);
 		out.close();
 	}
 
-	public static int calculateArea(ArrayList<Integer> removedXs, ArrayList<Integer> removedYs) {
-		int minX = Integer.MAX_VALUE;
-		int minY = Integer.MAX_VALUE;
-		int maxX = 0;
-		int maxY = 0;
-		for (int i = 0; i < removedXs.size(); i++) {
-			minX = Math.min(minX, removedXs.get(i));
-			maxX = Math.max(maxX, removedXs.get(i));
-			minY = Math.min(minY, removedYs.get(i));
-			maxY = Math.max(maxY, removedYs.get(i));
+	public static void fillArray(int count, int[] temp) {
+		if (count == 4) {
+			int minX = map[LEFT][temp[LEFT]];
+			int maxX = map[RIGHT][temp[RIGHT]];
+			int minY = map[TOP][temp[TOP]];
+			int maxY = map[BOTTOM][temp[BOTTOM]];
+			if (valid(minX, maxX, minY, maxY)) {
+				int area = area(minX, maxX, minY, maxY);
+				result = Math.min(result, area);
+			}
+			return;
 		}
+		for (int i = 0; i <= 3; i++) {
+			temp[count] = i;
+			fillArray(count + 1, temp);
+		}
+	}
+
+	public static int area(int minX, int maxX, int minY, int maxY) {
 		return (maxX - minX) * (maxY - minY);
+	}
+
+	public static boolean valid(int minX, int maxX, int minY, int maxY) {
+		if (maxX < minX || maxY < minY)
+			return false;
+		int total = 0;
+		for (int i = 0; i < N; i++) {
+			if (cows[i][0] < minX || cows[i][0] > maxX || cows[i][1] < minY || cows[i][1] > maxY)
+				total++;
+		}
+		return total <= 3;
 	}
 }
