@@ -4,12 +4,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class diamond {
-	private static int[] values;
-	private static int[] dp;
+	private static int[] dp = new int[10001];
+	private static int[] counts = new int[10001];
 	private static int N, K;
 	private static int result = 0;
 
@@ -18,24 +17,18 @@ public class diamond {
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("diamond.out")));
 		StringTokenizer st = new StringTokenizer(f.readLine());
 		N = Integer.parseInt(st.nextToken());
-		K = Integer.parseInt(st.nextToken()) * 2;
-		values = new int[N];
-		dp = new int[N];
+		K = Integer.parseInt(st.nextToken());
 		for (int i = 0; i < N; i++) {
-			values[i] = Integer.parseInt(f.readLine()) * 2;
+			counts[Integer.parseInt(f.readLine())]++;
 		}
-		Arrays.sort(values);
-		for (int first = 0; first < N; first++) {
-			int second = -Arrays.binarySearch(values, values[first] + K + 1) - 1;
-			dp[first] = second;
+		for (int i = 1; i <= 10000; i++) {
+			dp[i] = dp[i - 1] + counts[i];
 		}
-		for (int first = 0; first < N; first++) {
-			int second = dp[first];
-			int length1 = second - first;
-			for (int third = second; third < N; third++) {
-				int fourth = dp[third];
-				result = Math.max(result, fourth - third + length1);
-			}
+		for (int i = 1; i <= 10000; i++) {
+			if (i + K > 10000)
+				break;
+			int amount = dp[i + K] - dp[i - 1];
+			result = Math.max(result, amount);
 		}
 		out.println(result);
 		out.close();
