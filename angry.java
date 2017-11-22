@@ -5,56 +5,53 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.StringTokenizer;
 
 public class angry {
-	private static int N, K;
-	private static int[] indexes;
-	private static int[] intervals;
-	private static boolean[] cuts;
-	private static int result;
+	private static int[] bales;
+	private static int N;
+	private static int result = 0;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("angry.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("angry.out")));
-		StringTokenizer st = new StringTokenizer(f.readLine());
-		N = Integer.parseInt(st.nextToken());
-		K = Integer.parseInt(st.nextToken());
-		indexes = new int[N];
+		N = Integer.parseInt(f.readLine());
+		bales = new int[N];
 		for (int i = 0; i < N; i++) {
-			indexes[i] = Integer.parseInt(f.readLine());
+			bales[i] = Integer.parseInt(f.readLine());
 		}
-		Arrays.sort(indexes);
-		out.println(search());
+		Arrays.sort(bales);
+		for (int start = 0; start < N; start++) {
+			int force = 1;
+			int leftIndex = start;
+			while (true) {
+				if (leftIndex == 0)
+					break;
+				if (distance(bales[leftIndex - 1], bales[leftIndex]) > force)
+					break;
+				int curr = leftIndex;
+				while (leftIndex != 0 && distance(bales[leftIndex - 1], bales[curr]) <= force)
+					leftIndex--;
+				force++;
+			}
+			force = 1;
+			int rightIndex = start;
+			while (true) {
+				if (rightIndex == N - 1)
+					break;
+				if (distance(bales[rightIndex + 1], bales[rightIndex]) > force)
+					break;
+				int curr = rightIndex;
+				while (rightIndex != (N - 1) && distance(bales[rightIndex + 1], bales[curr]) <= force)
+					rightIndex++;
+				force++;
+			}
+			result = Math.max(result, rightIndex - leftIndex + 1);
+		}
+		out.println(result);
 		out.close();
 	}
 
-	public static int search() {
-		int low = 0;
-		int high = 1000000000;
-		int middle = 0;
-		while (high != low) {
-			middle = (low + high) / 2;
-			if (valid(middle)) {
-				high = middle;
-			} else {
-				low = middle + 1;
-			}
-		}
-		return (low + high) / 2;
-	}
-
-	public static boolean valid(int r) {
-		int last = 0;
-		int count = 0;
-		for (int i = 0; i < N; i++) {
-			if (indexes[i] <= last)
-				continue;
-			if (count == K)
-				return false;
-			count++;
-			last = indexes[i] + 2 * r;
-		}
-		return true;
+	public static int distance(int start, int end) {
+		return Math.abs(start - end);
 	}
 }
