@@ -1,34 +1,41 @@
-import java.util.*;
-import java.io.*;
-import java.lang.Math;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
-public class diamond{
-	public static void main(String[] args) throws IOException{
+public class diamond {
+	private static int[] values;
+	private static int[] dp;
+	private static int N, K;
+	private static int result = 0;
+
+	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("diamond.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("diamond.out")));
 		StringTokenizer st = new StringTokenizer(f.readLine());
-		int N = Integer.parseInt(st.nextToken());
-		int K = Integer.parseInt(st.nextToken());
-		int[] array = new int[N];
-		int result = 0;
-		for(int i=0;i<N;i++){
-			array[i] = Integer.parseInt(f.readLine());
+		N = Integer.parseInt(st.nextToken());
+		K = Integer.parseInt(st.nextToken()) * 2;
+		values = new int[N];
+		dp = new int[N];
+		for (int i = 0; i < N; i++) {
+			values[i] = Integer.parseInt(f.readLine()) * 2;
 		}
-		Arrays.sort(array);
-		for(int lowerBound=1;lowerBound<10000;lowerBound++){
-			int upperBound = lowerBound+K;
-			int i=0;
-			while(i<N){
-				if(array[i]>=lowerBound) break;
-				i++;
+		Arrays.sort(values);
+		for (int first = 0; first < N; first++) {
+			int second = -Arrays.binarySearch(values, values[first] + K + 1) - 1;
+			dp[first] = second;
+		}
+		for (int first = 0; first < N; first++) {
+			int second = dp[first];
+			int length1 = second - first;
+			for (int third = second; third < N; third++) {
+				int fourth = dp[third];
+				result = Math.max(result, fourth - third + length1);
 			}
-			int k=i;
-			while(k<N){
-				if(array[k]>upperBound) break;
-				k++;
-			}
-			k--;
-			result = Math.max(result,k-i+1);
 		}
 		out.println(result);
 		out.close();
