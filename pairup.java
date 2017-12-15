@@ -1,53 +1,74 @@
-import java.util.*;
-import java.io.*;
-import java.lang.Math;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.StringTokenizer;
 
-public class pairup{
-	public static void main(String[] args) throws IOException,InterruptedException{
+public class pairup {
+	private static int result = 0;
+	private static int N;
+	private static cow[] cows;
+
+	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("pairup.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("pairup.out")));
-		int N = Integer.parseInt(f.readLine());
-		ArrayList<struct> cows = new ArrayList<struct>();
-		for(int i=0;i<N;i++){
+		N = Integer.parseInt(f.readLine());
+		cows = new cow[N];
+		for (int i = 0; i < N; i++) {
 			StringTokenizer st = new StringTokenizer(f.readLine());
-			int amount = Integer.parseInt(st.nextToken());
-			int value = Integer.parseInt(st.nextToken());
-			cows.add(new struct(value,amount));
+			int a = Integer.parseInt(st.nextToken());
+			int b = Integer.parseInt(st.nextToken());
+			cows[i] = new cow(a, b);
 		}
-		Collections.sort(cows);
-		int minIndex = 0;
-		int maxIndex = cows.size()-1;
-		int result = 0;
-		while(minIndex<=maxIndex){
-			int minTime = cows.get(minIndex).getValue();
-			int maxTime = cows.get(maxIndex).getValue();
-			result = Math.max(result,minTime+maxTime);
-			cows.get(minIndex).decrement();
-			if(cows.get(minIndex).getAmount()==0) minIndex++;
-			cows.get(maxIndex).decrement();
-			if(cows.get(maxIndex).getAmount()==0) maxIndex--;
+		Arrays.sort(cows);
+		int left = 0;
+		int right = N - 1;
+		while (true) {
+			result = Math.max(result, cows[left].getValue() + cows[right].getValue());
+			if (left == right) {
+				break;
+			}
+			if (cows[left].getCount() < cows[right].getCount()) {
+				cows[right].setCount(cows[right].getCount() - cows[left].getCount());
+				left++;
+			} else if (cows[left].getCount() > cows[right].getCount()) {
+				cows[left].setCount(cows[left].getCount() - cows[right].getCount());
+				right--;
+			} else {
+				left++;
+				right--;
+			}
 		}
-		if(cows.size()==1) result = cows.get(0).getValue();
 		out.println(result);
 		out.close();
 	}
 }
 
-class struct implements Comparable<struct>{
+class cow implements Comparable<cow> {
+	private int count;
 	private int value;
-	private int amount;
 
-	public struct(int v, int a){
+	public cow(int c, int v) {
+		count = c;
 		value = v;
-		amount = a;
 	}
 
-	public int getValue() {return value;}
-	public int getAmount() {return amount;}
-	public void decrement() { amount--;}
-	public int compareTo(struct next){
-		if(value<next.value) return -1;
-		else if(value>next.value) return 1;
-		else return 0;
+	public int getCount() {
+		return count;
+	}
+
+	public int getValue() {
+		return value;
+	}
+
+	public void setCount(int c) {
+		count = c;
+	}
+
+	public int compareTo(cow next) {
+		return Integer.compare(value, next.value);
 	}
 }
