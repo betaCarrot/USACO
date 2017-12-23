@@ -24,13 +24,6 @@ public class fact4 {
 			int next = dp[i - 1] * i;
 			dp[i] = lastThreeDigits(next);
 		}
-		/*
-		 * long[] check = new long[N + 1]; check[0] = 1L; for (int i = 1; i <= N; i++) {
-		 * check[i] = i * check[i - 1]; } System.out.println(check[14]);
-		 * System.out.println(dp[14]); for (int i = 0; i <= N; i++) { if (digit(dp[i])
-		 * != digit(check[i])) { System.out.println(i); System.out.println(check[i]);
-		 * System.out.println(dp[i]); break; } }
-		 */
 		out.println(digit(dp[N]));
 		out.close();
 	}
@@ -64,11 +57,5 @@ public class fact4 {
 		if (index < 3)
 			return Integer.parseInt(s.substring(0, index + 1));
 		return Integer.parseInt(s.substring(index - 2, index + 1));
-	}
-
-	public static void printArray(int[] array) {
-		for (int i : array)
-			System.out.print(i + " ");
-		System.out.println();
 	}
 }
