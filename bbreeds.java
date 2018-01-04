@@ -16,7 +16,7 @@ public class bbreeds {
 		N = str.length();
 		int[][] dp = new int[N + 1][N + 1];
 		dp[0][0] = 1;
-		int numOpen = 0;
+		int numOpen;
 		for (int i = 1; i <= N; i++) {
 			if (str.substring(i - 1, i).equals("(")) {
 				numOpen++;
