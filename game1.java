@@ -1,0 +1,72 @@
+
+/*
+ ID: majesti2
+ LANG: JAVA
+ TASK: game1
+ */
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+
+public class game1 {
+	private static int N;
+	private static int[] array, sum;
+	private static int[][] dp;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader f = new BufferedReader(new FileReader("game1.in"));
+		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("game1.out")));
+		N = Integer.parseInt(f.readLine());
+		array = new int[N];
+		sum = new int[N];
+		dp = new int[N][N];
+		int index = 0;
+		String line;
+		while ((line = f.readLine()) != null) {
+			StringTokenizer st = new StringTokenizer(line);
+			while (st.hasMoreTokens()) {
+				array[index] = Integer.parseInt(st.nextToken());
+				index++;
+			}
+		}
+		sum[0] = array[0];
+		for (int i = 1; i < N; i++) {
+			sum[i] = sum[i - 1] + array[i];
+		}
+		for (int i = 0; i < N; i++) {
+			dp[i][i] = array[i];
+		}
+		for (int i = N - 1; i >= 0; i--) {
+			for (int j = i + 1; j < N; j++) {
+				dp[i][j] = Math.max(array[i] + sum(i + 1, j) - dp[i + 1][j], array[j] + sum(i, j - 1) - dp[i][j - 1]);
+			}
+		}
+		out.println(dp[0][N - 1] + " " + (sum(0, N - 1) - dp[0][N - 1]));
+		out.close();
+	}
+
+	public static int sum(int i, int j) {
+		if (i == 0)
+			return sum[j];
+		return sum[j] - sum[i - 1];
+	}
+
+	public static void printMatrix(int[][] matrix) {
+		for (int[] is : matrix) {
+			for (int i : is)
+				System.out.print(i + " ");
+			System.out.println();
+		}
+	}
+
+	public static void printArray(int[] array) {
+		for (int i : array) {
+			System.out.print(i + " ");
+		}
+		System.out.println();
+	}
+}
