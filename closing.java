@@ -4,144 +4,93 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.StringTokenizer;
 
 public class closing {
-	private static boolean[] closed;
-	private static boolean[] dfsVisited;
-	private static int total = 0;
-	private static int numLeft;
-	private static int lastUnclosed = 0;
 	private static int N, M;
-	private static pathInc[] pathIncs;
-	private static pathDec[] pathDecs;
+	private static int[] parent;
+	private static boolean[] open;
+	private static ArrayList<Integer> inputs = new ArrayList<Integer>();
+	private static int[] order;
+	private static ArrayList<ArrayList<Integer>> edges = new ArrayList<ArrayList<Integer>>();
 
 	public static void main(String[] args) throws IOException {
+		long startTime = System.currentTimeMillis();
 		BufferedReader f = new BufferedReader(new FileReader("closing.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("closing.out")));
 		StringTokenizer st = new StringTokenizer(f.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
-		numLeft = N;
-		closed = new boolean[N];
-		dfsVisited = new boolean[N];
-		pathIncs = new pathInc[M];
-		pathDecs = new pathDec[M];
+		parent = new int[N];
+		open = new boolean[N];
+		for (int iter = 0; iter < N; iter++) {
+			edges.add(new ArrayList<Integer>());
+		}
+		for (int i = 0; i < N; i++) {
+			parent[i] = i;
+		}
 		for (int i = 0; i < M; i++) {
 			st = new StringTokenizer(f.readLine());
 			int a = Integer.parseInt(st.nextToken()) - 1;
 			int b = Integer.parseInt(st.nextToken()) - 1;
-			pathIncs[i] = new pathInc(a, b);
-			pathDecs[i] = new pathDec(a, b);
+			edges.get(a).add(b);
+			edges.get(b).add(a);
 		}
-		Arrays.sort(pathIncs);
-		Arrays.sort(pathDecs);
+		for (int i = 0; i < N; i++) {
+			inputs.add(Integer.parseInt(f.readLine()) - 1);
+		}
+		Collections.reverse(inputs);
+		order = new int[N];
+		for (int i = 0; i < N; i++) {
+			order[i] = inputs.get(i);
+		}
+		int nodeConnected = 1;
+		ArrayList<String> output = new ArrayList<String>();
 		StringBuilder sb = new StringBuilder();
-		dfs(0);
-		if (total == numLeft) {
-			sb.append("YES");
-		} else
-			sb.append("NO");
-		sb.append("\n");
-		dfsVisited = new boolean[N];
-		total = 0;
-		for (int i = 0; i < N - 1; i++) {
-			int next = Integer.parseInt(f.readLine()) - 1;
-			closed[next] = true;
-			while (closed[lastUnclosed]) {
-				lastUnclosed++;
+		for (int iter = 0; iter < N; iter++) {
+			int i = order[iter];
+			open[i] = true;
+			for (int j : edges.get(i)) {
+				if (open[j])
+					nodeConnected += join(i, j);
 			}
-			numLeft--;
-			dfs(lastUnclosed);
-			if (total == numLeft) {
-				sb.append("YES");
-			} else
-				sb.append("NO");
-			sb.append("\n");
-			total = 0;
-			dfsVisited = new boolean[N];
+			if (nodeConnected == (iter + 1)) {
+				output.add("YES");
+			} else {
+				output.add("NO");
+			}
+		}
+		Collections.reverse(output);
+		for (String s : output) {
+			sb.append(s).append("\n");
 		}
 		out.print(sb.toString());
 		out.close();
+		System.out.println(System.currentTimeMillis() - startTime);
 	}
 
-	public static void dfs(int i) {
-		total++;
-		dfsVisited[i] = true;
-		int incIndexLow = -Arrays.binarySearch(pathIncs, new pathInc(i, i)) - 1;
-		int incIndexHigh = -Arrays.binarySearch(pathIncs, new pathInc(i, Integer.MAX_VALUE)) - 1;
-		int decIndexLow = -Arrays.binarySearch(pathDecs, new pathDec(i, i)) - 1;
-		int decIndexHigh = -Arrays.binarySearch(pathDecs, new pathDec(i, Integer.MIN_VALUE)) - 1;
-		for (int index = incIndexLow; index < incIndexHigh; index++) {
-			int j = pathIncs[index].getB();
-			if (!closed[j] && !dfsVisited[j]) {
-				dfs(j);
-			}
+	public static int find(int target) {
+		int parentIndex = target;
+		while (parent[parentIndex] != parentIndex) {
+			parentIndex = parent[parentIndex];
 		}
-		for (int index = decIndexLow; index < decIndexHigh; index++) {
-			int j = pathDecs[index].getB();
-			if (!closed[j] && !dfsVisited[j]) {
-				dfs(j);
-			}
+		int i = target;
+		while (i != parentIndex) {
+			i = parent[i];
+			parent[i] = parentIndex;
 		}
-	}
-}
-
-class pathInc implements Comparable<pathInc> {
-	private int a;
-	private int b;
-
-	public pathInc(int a, int b) {
-		this.a = Math.min(a, b);
-		this.b = Math.max(a, b);
+		return parentIndex;
 	}
 
-	public int getA() {
-		return a;
-	}
-
-	public int getB() {
-		return b;
-	}
-
-	public String toString() {
-		return a + " " + b;
-	}
-
-	public int compareTo(pathInc next) {
-		if (Integer.compare(a, next.a) != 0) {
-			return Integer.compare(a, next.a);
+	public static int join(int target1, int target2) {
+		int root1 = find(target1);
+		int root2 = find(target2);
+		if (root1 != root2) {
+			parent[root1] = root2;
+			return 1;
 		}
-		return Integer.compare(b, next.b);
-	}
-}
-
-class pathDec implements Comparable<pathDec> {
-	private int a;
-	private int b;
-
-	public pathDec(int a, int b) {
-		this.a = Math.max(a, b);
-		this.b = Math.min(a, b);
-	}
-
-	public int getA() {
-		return a;
-	}
-
-	public int getB() {
-		return b;
-	}
-
-	public String toString() {
-		return a + " " + b;
-	}
-
-	public int compareTo(pathDec next) {
-		if (Integer.compare(a, next.a) != 0) {
-			return -Integer.compare(a, next.a);
-		}
-		return -Integer.compare(b, next.b);
+		return 0;
 	}
 }
