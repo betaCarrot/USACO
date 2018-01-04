@@ -40,7 +40,6 @@ public class nocows {
 				smalltrees[i - 1][k] %= 9901;
 			}
 		}
-		System.err.println(dp[K][N]);
 		out.println(dp[K][N] % 9901);
 		out.close();
 	}
