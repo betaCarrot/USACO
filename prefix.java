@@ -1,52 +1,63 @@
+
 /*
  ID: majesti2
  LANG: JAVA
- PROG: prefix
+ TASK: prefix
  */
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
-public class prefix{
-	private static ArrayList<String> prefixes = new ArrayList<String>();
+public class prefix {
+	private static ArrayList<String> list = new ArrayList<String>();
+	private static String str;
 
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("prefix.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("prefix.out")));
 		String line;
-		while(true){
-			boolean end = false;
-			StringTokenizer st = new StringTokenizer(f.readLine());
-			while(st.hasMoreElements()) {
-				line = st.nextToken();
-				if(line.equals(".")) {end = true; break;}
-				prefixes.add(line);
+		while ((line = f.readLine()).equals(".") == false) {
+			StringTokenizer st = new StringTokenizer(line);
+			while (st.hasMoreTokens()) {
+				list.add(st.nextToken());
 			}
-			if(end) break;
 		}
 		StringBuilder sb = new StringBuilder();
-		while((line=f.readLine())!=null){
+		while ((line = f.readLine()) != null) {
 			sb.append(line);
 		}
-	String sequence = sb.toString();
-	boolean[] result = new boolean[sequence.length()];
-	int max = 0;
-	for(int i=0;i<sequence.length();i++){
-		for(String s:prefixes){
-			if(i-s.length()+1>=0){
-				if(sequence.substring(i-s.length()+1,i+1).equals(s)){
-					if((i-s.length()<0)||result[i-s.length()]){
-						result[i] = true;
-						max = i;
+		str = sb.toString();
+		boolean[] dp = new boolean[str.length() + 1];
+		dp[0] = true;
+		int result = 0;
+		boolean complete = true;
+		for (int i = 0; i <= str.length(); i++) {
+			if (!dp[i]) {
+				result = i;
+				complete = false;
+				break;
+			}
+			for (int j = 0; j < list.size(); j++) {
+				String s = list.get(j);
+				int next = s.length() + i;
+				if (next <= str.length()) {
+					if (str.substring(i, next).equals(s)) {
+						for (int k = i; k <= next; k++) {
+							dp[k] = true;
+						}
 					}
 				}
 			}
 		}
-	}
-	if(max==0){
-		if(result[0]) out.println(1);
-		else out.println(0);
-	}
-	else out.println(max+1);
-	out.close();
+		if (complete) {
+			result = str.length() + 1;
+		}
+		out.println(result - 1);
+		out.close();
 	}
 }
