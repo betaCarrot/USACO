@@ -43,7 +43,7 @@ public class fencedin {
 		for (int i = 1; i <= M; i++) {
 			hLengths[i] = inputH[i] - inputH[i - 1];
 		}
-		System.out.println(fastMST());
+		out.println(fastMST());
 		out.close();
 	}
 
