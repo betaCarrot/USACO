@@ -104,11 +104,7 @@ class edge implements Comparable<edge> {
 		end = b;
 		weight = w;
 	}
-
-	public String toString() {
-		return "Edge: " + start + " " + end + " " + weight;
-	}
-
+	
 	public int compareTo(edge next) {
 		return -Integer.compare(weight, next.weight);
 	}
@@ -121,10 +117,6 @@ class query implements Comparable<query> {
 		threshold = a;
 		start = b;
 		index = c;
-	}
-
-	public String toString() {
-		return "Query: " + threshold + " " + start + " " + index;
 	}
 
 	public int compareTo(query next) {
