@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 public class wifi {
 	private static int N, A, B;
 	private static double[] array;
-	private static double[][] dp;
+	private static double[] values;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("wifi.in"));
@@ -24,25 +24,36 @@ public class wifi {
 			array[i] = Double.parseDouble(f.readLine());
 		}
 		Arrays.sort(array);
-		dp = new double[N][N];
+		values = new double[N];
 		for (int i = 0; i < N; i++) {
-			dp[i][i] = A;
+			values[i] = -1;
 		}
-		for (int c = 1; c <= N; c++) {
-			for (int i = 0; i + c < N; i++) {
-				int j = i + c;
-				double min = A + (array[i] + array[j]) * 0.5 * B;
-				for (int k = i; k < j; k++) {
-					min = Math.min(min, dp[i][k] + dp[k + 1][j]);
-				}
-				dp[i][j] = min;
-			}
-		}
-		if (Double.toString(dp[0][N - 1]).indexOf(".0") >= 0) {
-			out.println((int) (dp[0][N - 1]));
+		double result = dfs(0);
+		if (Double.toString(result).indexOf(".0") >= 0) {
+			out.println((int) (result));
 		} else
-			out.println(dp[0][N - 1]);
+			out.println(result);
 		out.close();
+	}
+
+	public static double dfs(int index) {
+		if (index >= N) {
+			return 0;
+		}
+		if (values[index] >= 0) {
+			return values[index];
+		} else {
+			double min = Double.MAX_VALUE;
+			for (int i = index; i < N; i++) {
+				min = Math.min(min, cost(index, i) + dfs(i + 1));
+			}
+			values[index] = min;
+			return min;
+		}
+	}
+
+	public static double cost(int index1, int index2) {
+		return A + (array[index2] - array[index1]) * 0.5 * B;
 	}
 
 	public static void printMatrix(double[][] matrix) {
