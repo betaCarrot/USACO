@@ -74,10 +74,6 @@ class node implements Comparable<node> {
 		height = b;
 	}
 
-	public String toString() {
-		return index + " " + height;
-	}
-
 	public int compareTo(node next) {
 		if (index == next.index) {
 			return height - next.height;
