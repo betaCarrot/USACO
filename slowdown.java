@@ -24,8 +24,8 @@ public class slowdown {
 				pqd.add(temp);
 		}
 		pqd.add(1000);
-		double currentTime = 0.0;
-		double currentDistance = 0.0;
+		double currentTime = 0;
+		double currentDistance = 0;
 		int divisor = 1;
 		while (!(pqd.isEmpty() && pqt.isEmpty())) {
 			if (pqt.isEmpty()) {
