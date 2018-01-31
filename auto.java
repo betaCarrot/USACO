@@ -5,11 +5,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 public class auto {
 	private static String[] dict;
-	private static String[] original;
+	private static HashMap<String, Integer> map = new HashMap<String, Integer>();
 	private static int N;
 
 	public static void main(String[] args) throws IOException {
@@ -20,11 +21,10 @@ public class auto {
 		N = Integer.parseInt(st.nextToken());
 		int K = Integer.parseInt(st.nextToken());
 		dict = new String[N];
-		original = new String[N];
 		for (int i = 0; i < N; i++) {
 			String s = f.readLine();
 			dict[i] = s;
-			original[i] = s;
+			map.put(s, i);
 		}
 		Arrays.sort(dict);
 		for (int i = 0; i < K; i++) {
@@ -32,19 +32,13 @@ public class auto {
 			int ind = Integer.parseInt(st.nextToken());
 			String s = st.nextToken();
 			int index = binarySearch(s);
-			while (true) {
-				if (index == -1 || !dict[index].startsWith(s))
-					break;
-				index--;
-			}
-			index++;
 			index += (ind - 1);
 			int result;
 			if (index >= N || !dict[index].startsWith(s)) {
 				result = -1;
 			} else {
 				String target = dict[index];
-				result = findIndex(target) + 1;
+				result = map.get(target) + 1;
 			}
 			sb.append(result).append("\n");
 		}
@@ -55,23 +49,13 @@ public class auto {
 	public static int binarySearch(String s) {
 		int low = 0;
 		int high = N - 1;
-		while (high >= low) {
+		while (high != low) {
 			int middle = (low + high) / 2;
-			if (dict[middle].startsWith(s))
-				return middle;
 			if (dict[middle].compareTo(s) < 0)
 				low = middle + 1;
-			if (dict[middle].compareTo(s) > 0)
-				high = middle - 1;
+			else
+				high = middle;
 		}
-		return -1;
-	}
-
-	public static int findIndex(String s) {
-		for (int i = 0; i < N; i++) {
-			if (original[i].equals(s))
-				return i;
-		}
-		return -1;
+		return (low + high) / 2;
 	}
 }
