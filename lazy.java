@@ -7,61 +7,47 @@ import java.io.PrintWriter;
 import java.util.StringTokenizer;
 
 public class lazy {
-	private static int MAX = 1000001;
-	private static int[] grass = new int[MAX];
-	private static int[] dpLeft = new int[MAX];
-	private static int[] dpRight = new int[MAX];
-	private static int K;
-	private static int result = 0;
+	private static int N, K;
+	private static int[][] map;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("lazy.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("lazy.out")));
 		StringTokenizer st = new StringTokenizer(f.readLine());
-		int N = Integer.parseInt(st.nextToken());
-		K = Integer.parseInt(st.nextToken()) + 1;
+		N = Integer.parseInt(st.nextToken());
+		K = Integer.parseInt(st.nextToken());
+		int total = 0;
+		map = new int[N * 2 - 1][N * 2 - 1];
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(f.readLine());
-			int amount = Integer.parseInt(st.nextToken());
-			int index = Integer.parseInt(st.nextToken());
-			grass[index] = amount;
+			for (int k = 0; k < N; k++) {
+				int temp = Integer.parseInt(st.nextToken());
+				map[i + k][N - i + k - 1] = temp;
+				total += temp;
+			}
 		}
-		dpLeft[0] = grass[0];
-		dpRight[MAX - 1] = grass[MAX - 1];
-		fillLeft();
-		fillRight();
-		merge();
+		N = N * 2 - 1;
+		int result = 0;
+		for (int i = K; i + K < N; i++) {
+			int sum = 0;
+			for (int a = i - K; a <= i + K; a++) {
+				for (int b = 0; b <= 2 * K; b++) {
+					sum += map[a][b];
+				}
+			}
+			result = Math.max(result, sum);
+			for (int j = 1; j + 2 * K < N; j++) {
+				for (int a = i - K; a <= i + K; a++) {
+					sum -= map[a][j - 1];
+					sum += map[a][j + 2 * K];
+				}
+				result = Math.max(result, sum);
+			}
+		}
+		if (result == 0) {
+			result = total;
+		}
 		out.println(result);
 		out.close();
-	}
-
-	public static boolean valid(int i) {
-		return i >= 0 && i < MAX;
-	}
-
-	public static void fillLeft() {
-		for (int i = 1; i < MAX; i++) {
-			int temp = dpLeft[i - 1] + grass[i];
-			if (valid(i - K)) {
-				temp -= grass[i - K];
-			}
-			dpLeft[i] = temp;
-		}
-	}
-
-	public static void fillRight() {
-		for (int i = MAX - 2; i >= 0; i--) {
-			int temp = dpRight[i + 1] + grass[i];
-			if (valid(i + K)) {
-				temp -= grass[i + K];
-			}
-			dpRight[i] = temp;
-		}
-	}
-
-	public static void merge() {
-		for (int i = 0; i < MAX; i++) {
-			result = Math.max(result, dpLeft[i] + dpRight[i] - grass[i]);
-		}
 	}
 }
