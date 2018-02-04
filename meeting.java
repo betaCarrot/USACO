@@ -5,15 +5,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 
 public class meeting {
-	private static int[][] mapB;
-	private static int[][] mapE;
 	private static int N, M;
-	private static ArrayList<Integer> bTimes = new ArrayList<Integer>();
-	private static ArrayList<Integer> eTimes = new ArrayList<Integer>();
+	private static ArrayList<ArrayList<edge>> edges = new ArrayList<ArrayList<edge>>();
+	private static HashSet<Integer> bs = new HashSet<Integer>();
+	private static HashSet<Integer> es = new HashSet<Integer>();
+	private static HashMap<Integer, HashSet<Integer>> bMap = new HashMap<Integer, HashSet<Integer>>();
+	private static HashMap<Integer, HashSet<Integer>> eMap = new HashMap<Integer, HashSet<Integer>>();
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("meeting.in"));
@@ -21,60 +23,84 @@ public class meeting {
 		StringTokenizer st = new StringTokenizer(f.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
-		mapB = new int[N][N];
-		mapE = new int[N][N];
+		for (int i = 0; i < N; i++) {
+			edges.add(new ArrayList<edge>());
+		}
 		for (int i = 0; i < M; i++) {
 			st = new StringTokenizer(f.readLine());
-			int row = Integer.parseInt(st.nextToken()) - 1;
-			int col = Integer.parseInt(st.nextToken()) - 1;
-			int b = Integer.parseInt(st.nextToken());
-			int e = Integer.parseInt(st.nextToken());
-			mapB[row][col] = b;
-			mapE[row][col] = e;
+			int a = Integer.parseInt(st.nextToken()) - 1;
+			int b = Integer.parseInt(st.nextToken()) - 1;
+			int from = Math.min(a, b);
+			int to = Math.max(a, b);
+			int bTime = Integer.parseInt(st.nextToken());
+			int eTime = Integer.parseInt(st.nextToken());
+			edges.get(from).add(new edge(to, bTime, eTime));
 		}
-		dfsB(0, 0);
-		dfsE(0, 0);
-		Collections.sort(bTimes);
-		Collections.sort(eTimes);
-		int result = -1;
-		for (int i = 0; i < bTimes.size(); i++) {
-			if (Collections.binarySearch(eTimes, bTimes.get(i)) >= 0) {
-				result = bTimes.get(i);
-				break;
+		bs = dfsB(0);
+		es = dfsE(0);
+		int result = Integer.MAX_VALUE;
+		for (int i : bs) {
+			if (es.contains(i)) {
+				result = Math.min(result, i);
 			}
 		}
-		if (result == -1)
-			out.println("IMPOSSIBLE");
-		else
+		if (result != Integer.MAX_VALUE) {
 			out.println(result);
+		} else {
+			out.println("IMPOSSIBLE");
+		}
 		out.close();
 	}
 
-	public static void dfsB(int index, int time) {
+	public static HashSet<Integer> dfsB(int index) {
+		HashSet<Integer> result = new HashSet<Integer>();
 		if (index == N - 1) {
-			bTimes.add(time);
-			return;
+			result.add(0);
+			return result;
 		}
-		int[] neighbors = mapB[index];
-		for (int i = index + 1; i < N; i++) {
-			int timeInc = neighbors[i];
-			if (timeInc == 0)
-				continue;
-			dfsB(i, time + timeInc);
+		if (bMap.containsKey(index)) {
+			return bMap.get(index);
 		}
+		for (edge e : edges.get(index)) {
+			HashSet<Integer> ret = dfsB(e.to);
+			HashSet<Integer> temp = new HashSet<Integer>();
+			for (int i : ret) {
+				temp.add(i + e.bTime);
+			}
+			result.addAll(temp);
+		}
+		bMap.put(index, result);
+		return result;
 	}
 
-	public static void dfsE(int index, int time) {
+	public static HashSet<Integer> dfsE(int index) {
+		HashSet<Integer> result = new HashSet<Integer>();
 		if (index == N - 1) {
-			eTimes.add(time);
-			return;
+			result.add(0);
+			return result;
 		}
-		int[] neighbors = mapE[index];
-		for (int i = index + 1; i < N; i++) {
-			int timeInc = neighbors[i];
-			if (timeInc == 0)
-				continue;
-			dfsE(i, time + timeInc);
+		if (eMap.containsKey(index)) {
+			return eMap.get(index);
 		}
+		for (edge e : edges.get(index)) {
+			HashSet<Integer> ret = dfsE(e.to);
+			HashSet<Integer> temp = new HashSet<Integer>();
+			for (int i : ret) {
+				temp.add(i + e.eTime);
+			}
+			result.addAll(temp);
+		}
+		eMap.put(index, result);
+		return result;
+	}
+}
+
+class edge {
+	public int to, bTime, eTime;
+
+	public edge(int a, int b, int c) {
+		to = a;
+		bTime = b;
+		eTime = c;
 	}
 }
