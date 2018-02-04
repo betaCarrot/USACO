@@ -28,10 +28,8 @@ public class meeting {
 		}
 		for (int i = 0; i < M; i++) {
 			st = new StringTokenizer(f.readLine());
-			int a = Integer.parseInt(st.nextToken()) - 1;
-			int b = Integer.parseInt(st.nextToken()) - 1;
-			int from = Math.min(a, b);
-			int to = Math.max(a, b);
+			int from = Integer.parseInt(st.nextToken()) - 1;
+			int to = Integer.parseInt(st.nextToken()) - 1;
 			int bTime = Integer.parseInt(st.nextToken());
 			int eTime = Integer.parseInt(st.nextToken());
 			edges.get(from).add(new edge(to, bTime, eTime));
