@@ -53,8 +53,7 @@ public class stampede {
 }
 
 class event implements Comparable<event> {
-	public int time;
-	public int key;
+	public int time,key;
 	public boolean add;
 
 	public event(int a, int b, boolean c) {
