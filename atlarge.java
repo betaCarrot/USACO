@@ -10,10 +10,10 @@ import java.util.StringTokenizer;
 
 public class atlarge {
 	private static int N, root;
-	private static int[] distanceToRoot;
-	private static int[] distanceToLeaf;
-	private static boolean[] visited;
 	private static ArrayList<ArrayList<Integer>> edges = new ArrayList<ArrayList<Integer>>();
+	private static int[] deep, mins;
+	private static boolean[] visited;
+	private static boolean[] leaves;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("atlarge.in"));
@@ -26,83 +26,76 @@ public class atlarge {
 		}
 		for (int i = 0; i < N - 1; i++) {
 			st = new StringTokenizer(f.readLine());
-			int a = Integer.parseInt(st.nextToken()) - 1;
-			int b = Integer.parseInt(st.nextToken()) - 1;
-			edges.get(a).add(b);
-			edges.get(b).add(a);
+			int from = Integer.parseInt(st.nextToken()) - 1;
+			int to = Integer.parseInt(st.nextToken()) - 1;
+			edges.get(from).add(to);
+			edges.get(to).add(from);
 		}
-		distanceToRoot = new int[N];
-		distanceToLeaf = new int[N];
+		deep = new int[N];
+		mins = new int[N];
 		visited = new boolean[N];
+		leaves = new boolean[N];
+		for (int i = 0; i < N; i++) {
+			if (edges.get(i).size() == 1) {
+				leaves[i] = true;
+			}
+		}
 		dfs(root, 0);
 		visited = new boolean[N];
 		bfs();
-		int result = 0;
-		for (int i = 0; i < N; i++) {
-			if (i == root)
-				continue;
-			if (distanceToRoot[i] < distanceToLeaf[i])
-				continue;
-			if (distanceToRoot[findParent(i)] < distanceToLeaf[findParent(i)]) {
-				result++;
-			}
-		}
-		out.println(result);
+		visited = new boolean[N];
+		out.println(solve(root));
 		out.close();
 	}
 
-	public static int findParent(int index) {
-		for (int i : edges.get(index)) {
-			if (distanceToRoot[i] < distanceToRoot[index])
-				return i;
+	public static int solve(int index) {
+		if (mins[index] <= deep[index]) {
+			return 1;
 		}
-		return -1;
+		int result = 0;
+		visited[index] = true;
+		for (int j : edges.get(index)) {
+			if (!visited[j])
+				result += solve(j);
+		}
+		return result;
 	}
 
-	public static void dfs(int index, int length) {
-		distanceToRoot[index] = length;
+	public static void dfs(int index, int distance) {
+		if (visited[index])
+			return;
+		deep[index] = distance;
 		visited[index] = true;
-		for (int i : edges.get(index)) {
-			if (!visited[i]) {
-				dfs(i, length + 1);
-			}
+		for (int j : edges.get(index)) {
+			dfs(j, distance + 1);
 		}
 	}
 
 	public static void bfs() {
-		ArrayDeque<node> queue = new ArrayDeque<node>();
-		for (int i = 0; i < edges.size(); i++) {
-			if (edges.get(i).size() == 1) {
-				queue.offer(new node(i, 0));
+		int count = 0;
+		ArrayDeque<Integer> queue = new ArrayDeque<Integer>();
+		for (int i = 0; i < N; i++) {
+			mins[i] = Integer.MAX_VALUE;
+		}
+		for (int i = 0; i < N; i++) {
+			if (leaves[i]) {
+				queue.offer(i);
 			}
 		}
-		// System.out.println(queue.size());
 		while (!queue.isEmpty()) {
-			node curr = queue.poll();
-			int index = curr.index;
-			int length = curr.length;
-			if (visited[index])
-				continue;
-			visited[index] = true;
-			distanceToLeaf[index] = length;
-			for (int i : edges.get(index)) {
-				queue.offer(new node(i, length + 1));
+			ArrayDeque<Integer> temp = new ArrayDeque<Integer>();
+			while (!queue.isEmpty()) {
+				int curr = queue.poll();
+				if (visited[curr])
+					continue;
+				mins[curr] = count;
+				visited[curr] = true;
+				for (int j : edges.get(curr)) {
+					temp.offer(j);
+				}
 			}
+			queue.addAll(temp);
+			count++;
 		}
-	}
-
-	public static void printArray(int[] array) {
-		for (int i : array)
-			System.out.print(i + " ");
-		System.out.println();
-	}
-}
-
-class node {
-	public int index, length;
-
-	public node(int a, int b) {
-		index = a;
-		length = b;
 	}
 }
