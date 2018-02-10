@@ -6,57 +6,79 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class circlecross {
-	private static int[][] crossings = new int[26][2];
-	private static int[] counts = new int[26];
-	private static int result = 0;
+	private static int N;
+	private static event[] events;
+	private static int[] starts;
 
 	public static void main(String[] args) throws IOException {
+
 		BufferedReader f = new BufferedReader(new FileReader("circlecross.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("circlecross.out")));
-		String line = f.readLine();
-		for (int i = 0; i < 52; i++) {
-			int index = toIndex(line.substring(i, i + 1));
-			crossings[index][counts[index]] = i;
-			counts[index]++;
+		N = Integer.parseInt(f.readLine());
+		starts = new int[N];
+		events = new event[2 * N];
+		for (int i = 0; i < N; i++) {
+			starts[i] = -1;
 		}
-		for (int i = 0; i < 26; i++) {
-			int start1 = crossings[i][0];
-			int end1 = crossings[i][1];
-			for (int k = 0; k < 26; k++) {
-				if (i == k)
-					continue;
-				int start2 = crossings[k][0];
-				int end2 = crossings[k][1];
-				if (cross(start1, end1, start2, end2))
-					result++;
+		for (int i = 0; i < 2 * N; i++) {
+			int num = Integer.parseInt(f.readLine()) - 1;
+			if (starts[num] == -1) {
+				starts[num] = i;
+				events[i] = new event(num, true);
+			} else {
+				events[i] = new event(num, false);
 			}
 		}
-		out.println(result / 2);
+		int result = 0;
+		BIT bit = new BIT(2 * N);
+		for (int i = 0; i < 2 * N; i++) {
+			event e = events[i];
+			if (e.add) {
+				bit.update(i, 1);
+			} else {
+				int start = starts[e.number];
+				result += bit.query(i) - bit.query(start);
+				bit.update(start, -1);
+			}
+		}
+		out.println(result);
 		out.close();
+
+	}
+}
+
+class event {
+	public int number;
+	public boolean add;
+
+	public event(int b, boolean c) {
+		number = b;
+		add = c;
+	}
+}
+
+class BIT {
+	public int[] tree;
+
+	public BIT(int n) {
+		tree = new int[n + 5];
 	}
 
-	public static void printMatrix(int[][] matrix) {
-		for (int[] is : matrix) {
-			for (int i : is)
-				System.out.print(i + " ");
-			System.out.println();
+	public void update(int index, int val) {
+		index++;
+		while (index < tree.length) {
+			tree[index] += val;
+			index += index & -index;
 		}
 	}
 
-	public static boolean cross(int start1, int end1, int start2, int end2) {
-		if (end2 < start1)
-			return false;
-		if (end1 < start2)
-			return false;
-		if (start2 > start1 && end2 < end1)
-			return false;
-		if (start1 > start2 && end1 < end2)
-			return false;
-		return true;
-	}
-
-	public static int toIndex(String s) {
-		int ascii = (int) (s.charAt(0));
-		return ascii - 65;
+	public int query(int index) {
+		int ret = 0;
+		index++;
+		while (index > 0) {
+			ret += tree[index];
+			index -= index & -index;
+		}
+		return ret;
 	}
 }
