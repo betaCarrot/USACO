@@ -4,69 +4,63 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.StringTokenizer;
 
 public class hps {
-	private static final int H = 1;
+	private static int N, K;
+	private static int[] moves;
+	private static final int H = 0;
+	private static final int P = 1;
 	private static final int S = 2;
-	private static final int P = 3;
-	private static int N;
-	private static int[] values;
-	private static int[] dpH;
-	private static int[] dpS;
-	private static int[] dpP;
-	private static int result = 0;
+	private static int[][][] dp;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("hps.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("hps.out")));
-		N = Integer.parseInt(f.readLine());
-		values = new int[N];
+		StringTokenizer st = new StringTokenizer(f.readLine());
+		N = Integer.parseInt(st.nextToken());
+		K = Integer.parseInt(st.nextToken());
+		moves = new int[N];
 		for (int i = 0; i < N; i++) {
-			String line = f.readLine();
-			if (line.equals("H"))
-				values[i] = H;
-			else if (line.equals("S"))
-				values[i] = S;
-			else
-				values[i] = P;
+			moves[i] = tohps(f.readLine());
 		}
-		dpH = new int[N];
-		dpS = new int[N];
-		dpP = new int[N];
-		if (values[0] == H)
-			dpH[0] = 1;
-		else if (values[0] == S)
-			dpS[0] = 1;
-		else
-			dpP[0] = 1;
-		for (int i = 1; i < N; i++) {
-			dpH[i] = dpH[i - 1];
-			dpS[i] = dpS[i - 1];
-			dpP[i] = dpP[i - 1];
-			if (values[i] == H)
-				dpH[i]++;
-			else if (values[i] == S)
-				dpS[i]++;
-			else
-				dpP[i]++;
-		}
-		result = Math.max(result, max(dpH[N - 1], dpS[N - 1], dpP[N - 1]));
+		dp = new int[N][K + 1][3];
 		for (int i = 0; i < N; i++) {
-			int before = max(dpH[i], dpS[i], dpP[i]);
-			int after = max(dpH[N - 1] - dpH[i], dpS[N - 1] - dpS[i], dpP[N - 1] - dpP[i]);
-			result = Math.max(result, before + after);
+			for (int j = 0; j < K + 1; j++) {
+				for (int k = 0; k < 3; k++) {
+					dp[i][j][k] = -1;
+				}
+			}
 		}
-		out.println(result);
+		out.println(Math.max(dfs(0, 0, P), Math.max(dfs(0, 0, S), dfs(0, 0, H))));
 		out.close();
 	}
 
-	public static int max(int a, int b, int c) {
-		return Math.max(a, Math.max(b, c));
+	public static int dfs(int index, int count, int curr) {
+		if (index == N)
+			return 0;
+		if (dp[index][count][curr] != -1) {
+			return dp[index][count][curr];
+		}
+		int point = 0;
+		if (curr == H && moves[index] == S || curr == S && moves[index] == P || curr == P && moves[index] == H)
+			point = 1;
+		int result = 0;
+		if (count == K)
+			result = dfs(index + 1, count, curr);
+		else {
+			result = Math.max(dfs(index + 1, count, curr),
+					Math.max(dfs(index + 1, count + 1, (curr + 1) % 3), dfs(index + 1, count + 1, (curr + 2) % 3)));
+		}
+		dp[index][count][curr] = point + result;
+		return point + result;
 	}
 
-	public static void printArray(int[] array) {
-		for (int i : array)
-			System.out.print(i + " ");
-		System.out.println();
+	public static int tohps(String s) {
+		if (s.charAt(0) == 'H')
+			return H;
+		if (s.charAt(0) == 'P')
+			return P;
+		return S;
 	}
 }
