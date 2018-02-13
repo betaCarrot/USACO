@@ -9,10 +9,13 @@ import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class fencedin {
-	private static int A, B, N, M, size;
-	private static int[] vLengths, hLengths;
+	private static int A, B, N, M;
+	private static int[] vs, hs;
+	private static int[] dr = new int[] { -1, 1, 0, 0 };
+	private static int[] dc = new int[] { 0, 0, -1, 1 };
 
 	public static void main(String[] args) throws IOException {
+		long startTime = System.currentTimeMillis();
 		BufferedReader f = new BufferedReader(new FileReader("fencedin.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("fencedin.out")));
 		StringTokenizer st = new StringTokenizer(f.readLine());
@@ -20,135 +23,81 @@ public class fencedin {
 		B = Integer.parseInt(st.nextToken());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
-		size = (N + 1) * (M + 1);
-		int[] inputV = new int[N + 1];
-		for (int i = 0; i < N; i++) {
-			inputV[i] = Integer.parseInt(f.readLine());
-		}
-		inputV[N] = A;
-		Arrays.sort(inputV);
-		vLengths = new int[N + 1];
-		vLengths[0] = inputV[0];
+		vs = new int[M + 2];
+		hs = new int[N + 2];
 		for (int i = 1; i <= N; i++) {
-			vLengths[i] = inputV[i] - inputV[i - 1];
+			hs[i] = Integer.parseInt(f.readLine());
 		}
-		int[] inputH = new int[M + 1];
-		for (int i = 0; i < M; i++) {
-			inputH[i] = Integer.parseInt(f.readLine());
-		}
-		inputH[M] = B;
-		Arrays.sort(inputH);
-		hLengths = new int[M + 1];
-		hLengths[0] = inputH[0];
+		hs[N + 1] = A;
 		for (int i = 1; i <= M; i++) {
-			hLengths[i] = inputH[i] - inputH[i - 1];
+			vs[i] = Integer.parseInt(f.readLine());
 		}
-		out.println(fastMST());
+		vs[M + 1] = B;
+		Arrays.sort(hs);
+		Arrays.sort(vs);
+		System.out.println(MST());
 		out.close();
+		System.out.println(System.currentTimeMillis() - startTime);
 	}
 
-	public static int distance(int input1, int input2) {
-		int a = Math.min(input1, input2);
-		int b = Math.max(input1, input2);
-		if ((b - a) % (N + 1) == 0) {
-			int index = a % (N + 1);
-			return vLengths[index];
+	public static long MST() {
+		long[][] distances = new long[N + 1][M + 1];
+		for (int i = 0; i <= N; i++) {
+			for (int j = 0; j <= M; j++) {
+				distances[i][j] = Integer.MAX_VALUE;
+			}
 		}
-		if (atRight(a) && atLeft(b)) {
-			return Integer.MAX_VALUE;
-		}
-		if ((b - a) == 1) {
-			int index = a / (N + 1);
-			return hLengths[index];
-		}
-		return Integer.MAX_VALUE;
-	}
-
-	public static long fastMST() {
-		PriorityQueue<pair> pq = new PriorityQueue<pair>();
-		int[] distance = new int[size];
-		boolean[] inTree = new boolean[size];
-		for (int i = 0; i < size; i++) {
-			distance[i] = Integer.MAX_VALUE;
-		}
-		distance[0] = 0;
-		long treeCost = 0L;
-		pq.offer(new pair(0, 0));
+		boolean[][] inTree = new boolean[N + 1][M + 1];
+		long treeCost = 0;
+		distances[0][0] = 0;
+		PriorityQueue<node> pq = new PriorityQueue<node>();
+		pq.offer(new node(0, 0, 0));
 		while (!pq.isEmpty()) {
-			pair curr = pq.poll();
-			int minIndex = curr.getVertex();
-			int cost = curr.getCost();
-			if (inTree[minIndex])
+			node curr = pq.poll();
+			int row = curr.row;
+			int col = curr.col;
+			long distance = curr.distance;
+			if (inTree[row][col])
 				continue;
-			treeCost += cost;
-			inTree[minIndex] = true;
-			if (!atTop(minIndex)) {
-				int next = minIndex - (N + 1);
-				if (distance[next] > distance(minIndex, next)) {
-					distance[next] = distance(minIndex, next);
-					pq.offer(new pair(distance[next], next));
-				}
-			}
-			if (!atBottom(minIndex)) {
-				int next = minIndex + (N + 1);
-				if (distance[next] > distance(minIndex, next)) {
-					distance[next] = distance(minIndex, next);
-					pq.offer(new pair(distance[next], next));
-				}
-			}
-			if (!atRight(minIndex)) {
-				int next = minIndex + 1;
-				if (distance[next] > distance(minIndex, next)) {
-					distance[next] = distance(minIndex, next);
-					pq.offer(new pair(distance[next], next));
-				}
-			}
-			if (!atLeft(minIndex)) {
-				int next = minIndex - 1;
-				if (distance[next] > distance(minIndex, next)) {
-					distance[next] = distance(minIndex, next);
-					pq.offer(new pair(distance[next], next));
+			treeCost += distance;
+			inTree[row][col] = true;
+			for (int i = 0; i < 4; i++) {
+				int nextR = row + dr[i];
+				int nextC = col + dc[i];
+				if (!valid(nextR, nextC))
+					continue;
+				if (weight(row, col, nextR, nextC) < distances[nextR][nextC]) {
+					distances[nextR][nextC] = weight(row, col, nextR, nextC);
+					pq.offer(new node(nextR, nextC, distances[nextR][nextC]));
 				}
 			}
 		}
 		return treeCost;
 	}
 
-	public static boolean atTop(int index) {
-		return index / (N + 1) == 0;
+	public static boolean valid(int row, int col) {
+		return row >= 0 && row <= N && col >= 0 && col <= M;
 	}
 
-	public static boolean atBottom(int index) {
-		return index / (N + 1) == M;
-	}
-
-	public static boolean atRight(int index) {
-		return (index + 1) % (N + 1) == 0;
-	}
-
-	public static boolean atLeft(int index) {
-		return index % (N + 1) == 0;
+	public static int weight(int row1, int col1, int row2, int col2) {
+		if (row1 == row2) {
+			return hs[row1 + 1] - hs[row1];
+		}
+		return vs[col1 + 1] - vs[col1];
 	}
 }
 
-class pair implements Comparable<pair> {
-	private int cost;
-	private int vertex;
+class node implements Comparable<node> {
+	public int row, col;
+	public long distance;
 
-	public pair(int a, int b) {
-		cost = a;
-		vertex = b;
+	public node(int a, int b, long c) {
+		row = a;
+		col = b;
+		distance = c;
 	}
 
-	public int getCost() {
-		return cost;
-	}
-
-	public int getVertex() {
-		return vertex;
-	}
-
-	public int compareTo(pair next) {
-		return Integer.compare(cost, next.cost);
+	public int compareTo(node next) {
+		return Long.compare(distance, next.distance);
 	}
 }
