@@ -18,8 +18,7 @@ public class pageant {
 	public static void main(String[] args) throws IOException {
 		long startTime = System.currentTimeMillis();
 		BufferedReader f = new BufferedReader(new FileReader("pageant.in"));
-		PrintWriter out = new PrintWriter(
-				new BufferedWriter(new FileWriter("C:\\Users\\majesticdennis\\Desktop\\judge\\pageant.out")));
+		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("pageant.out")));
 		StringTokenizer st = new StringTokenizer(f.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
