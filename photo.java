@@ -34,8 +34,7 @@ public class photo {
 	public static void main(String[] args) throws IOException {
 		long startTime = System.currentTimeMillis();
 		BufferedReader f = new BufferedReader(new FileReader("photo.in"));
-		PrintWriter out = new PrintWriter(
-				new BufferedWriter(new FileWriter("C:\\Users\\majesticdennis\\Desktop\\judge\\photo.out")));
+		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("photo.out")));
 		N = Integer.parseInt(f.readLine());
 		pos = new int[5][N];
 		for (int i = 0; i < N; i++) {
