@@ -17,8 +17,7 @@ public class lineup {
 	public static void main(String[] args) throws IOException {
 		long startTime = System.currentTimeMillis();
 		BufferedReader f = new BufferedReader(new FileReader("lineup.in"));
-		PrintWriter out = new PrintWriter(
-				new BufferedWriter(new FileWriter("C:\\Users\\majesticdennis\\Desktop\\judge\\lineup.out")));
+		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("lineup.out")));
 		N = Integer.parseInt(f.readLine());
 		cows = new cow[N];
 		HashSet<Integer> set = new HashSet<Integer>();
