@@ -16,8 +16,7 @@ public class umbrella {
 	public static void main(String[] args) throws IOException {
 		long startTime = System.currentTimeMillis();
 		BufferedReader f = new BufferedReader(new FileReader("umbrella.in"));
-		PrintWriter out = new PrintWriter(
-				new BufferedWriter(new FileWriter("C:\\Users\\majesticdennis\\Desktop\\judge\\umbrella.out")));
+		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("umbrella.out")));
 		StringTokenizer st = new StringTokenizer(f.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
