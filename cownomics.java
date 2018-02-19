@@ -4,73 +4,83 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 
 public class cownomics {
-	private static final int A = 0;
-	private static final int C = 1;
-	private static final int G = 2;
-	private static final int T = 3;
-	private static int[][] spots;
-	private static int[][] plains;
 	private static int N, M;
-	private static int result = 0;
+	private static final long base = 31;
+	private static long[] powers;
+	private static char[][] spotted, plain;
+	private static long[][] sHash, pHash;
 
 	public static void main(String[] args) throws IOException {
+		long startTime = System.currentTimeMillis();
 		BufferedReader f = new BufferedReader(new FileReader("cownomics.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("cownomics.out")));
+		powers = new long[1000001];
+		powers[0] = 1;
+		for (int i = 1; i < 1000001; i++) {
+			powers[i] = powers[i - 1] * base;
+		}
 		StringTokenizer st = new StringTokenizer(f.readLine());
 		N = Integer.parseInt(st.nextToken());
 		M = Integer.parseInt(st.nextToken());
-		spots = new int[N][M];
-		plains = new int[N][M];
+		spotted = new char[N][M];
+		plain = new char[N][M];
 		for (int i = 0; i < N; i++) {
-			String line = f.readLine();
-			for (int k = 0; k < M; k++) {
-				String s = line.substring(k, k + 1);
-				if (s.equals("A"))
-					spots[i][k] = A;
-				else if (s.equals("C"))
-					spots[i][k] = C;
-				else if (s.equals("G"))
-					spots[i][k] = G;
-				else
-					spots[i][k] = T;
-			}
+			spotted[i] = f.readLine().toCharArray();
 		}
 		for (int i = 0; i < N; i++) {
-			String line = f.readLine();
-			for (int k = 0; k < M; k++) {
-				String s = line.substring(k, k + 1);
-				if (s.equals("A"))
-					plains[i][k] = A;
-				else if (s.equals("C"))
-					plains[i][k] = C;
-				else if (s.equals("G"))
-					plains[i][k] = G;
-				else
-					plains[i][k] = T;
+			plain[i] = f.readLine().toCharArray();
+		}
+		sHash = new long[N][M + 1];
+		pHash = new long[N][M + 1];
+		for (int i = 0; i < N; i++) {
+			sHash[i][0] = 0;
+			pHash[i][0] = 0;
+			for (int j = 1; j <= M; j++) {
+				sHash[i][j] = sHash[i][j - 1] * base + spotted[i][j - 1] - 'A' + 1;
+				pHash[i][j] = pHash[i][j - 1] * base + plain[i][j - 1] - 'A' + 1;
 			}
 		}
-		for (int k = 0; k < M; k++) {
-			boolean[] gSpots = new boolean[4];
-			boolean[] gPlains = new boolean[4];
-			for (int i = 0; i < N; i++) {
-				gSpots[spots[i][k]] = true;
-				gPlains[plains[i][k]] = true;
+		int result = Integer.MAX_VALUE;
+		for (int length = 0; length < M; length++) {
+			for (int left = 1; left + length <= M; left++) {
+				int right = left + length;
+				if (length + 1 > result) {
+					break;
+				}
+				boolean valid = true;
+				HashSet<Long> set = new HashSet<Long>();
+				for (int i = 0; i < N; i++) {
+					set.add(getSHash(i, left, right));
+				}
+				for (int i = 0; i < N; i++) {
+					if (set.contains(getPHash(i, left, right))) {
+						valid = false;
+						break;
+					}
+				}
+				if (valid) {
+					result = length + 1;
+					break;
+				}
 			}
-			if (check(gSpots, gPlains))
-				result++;
+			if (result != Integer.MAX_VALUE) {
+				break;
+			}
 		}
-		out.println(result);
+		System.out.println(result);
+		System.out.println(System.currentTimeMillis() - startTime);
 		out.close();
 	}
 
-	public static boolean check(boolean[] as, boolean[] bs) {
-		for (int i = 0; i <= 3; i++) {
-			if (as[i] == bs[i] && as[i] == true)
-				return false;
-		}
-		return true;
+	public static long getSHash(int i, int l, int r) {
+		return sHash[i][r] - sHash[i][l - 1] * powers[r - l + 1];
+	}
+
+	public static long getPHash(int i, int l, int r) {
+		return pHash[i][r] - pHash[i][l - 1] * powers[r - l + 1];
 	}
 }
