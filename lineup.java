@@ -58,9 +58,8 @@ public class lineup {
 			set.remove(new node(index, counts[index]));
 			counts[index]--;
 			set.add(new node(index, counts[index]));
-			if (counts[index] == 0) {
+			if (counts[index] == 0) 
 				breed--;
-			}
 			left++;
 		}
 		out.println(result);
