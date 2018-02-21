@@ -4,76 +4,79 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 public class lineup {
-	private static int N, numBreeds;
-	private static cow[] cows;
+	private static int N, K;
+	private static int[] array, counts;
 	private static HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 
 	public static void main(String[] args) throws IOException {
-		long startTime = System.currentTimeMillis();
 		BufferedReader f = new BufferedReader(new FileReader("lineup.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("lineup.out")));
-		N = Integer.parseInt(f.readLine());
-		cows = new cow[N];
-		HashSet<Integer> set = new HashSet<Integer>();
+		StringTokenizer st = new StringTokenizer(f.readLine());
+		N = Integer.parseInt(st.nextToken());
+		K = Integer.parseInt(st.nextToken());
+		array = new int[N];
+		int count = 0;
 		for (int i = 0; i < N; i++) {
-			StringTokenizer st = new StringTokenizer(f.readLine());
-			int pos = Integer.parseInt(st.nextToken());
-			int breed = Integer.parseInt(st.nextToken());
-			cows[i] = new cow(pos, breed);
-			set.add(breed);
+			int breed = Integer.parseInt(f.readLine());
+			array[i] = breed;
+			if (!map.containsKey(breed)) {
+				map.put(breed, count);
+				count++;
+			}
 		}
-		numBreeds = set.size();
-		Arrays.sort(cows);
+		counts = new int[count];
+		int result = 0;
 		int left = 0;
 		int right = 0;
-		int count = 0;
-		int result = Integer.MAX_VALUE;
+		int breed = 0;
+		TreeSet<node> set = new TreeSet<node>();
+		for (int i = 0; i < count; i++) {
+			set.add(new node(i, 0));
+		}
 		while (right < N) {
-			while (right < N && count != numBreeds) {
-				int breed = cows[right].breed;
-				if (!map.containsKey(breed) || map.get(breed) == 0) {
-					count++;
+			while (right < N) {
+				int index = map.get(array[right]);
+				if (counts[index] == 0) {
+					breed++;
 				}
-				if (!map.containsKey(breed))
-					map.put(breed, 1);
-				else
-					map.put(breed, map.get(breed) + 1);
-				right++;
-			}
-			if (count != numBreeds)
-				break;
-			while (left <= right) {
-				int breed = cows[left].breed;
-				result = Math.min(result, cows[right - 1].pos - cows[left].pos);
-				left++;
-				map.put(breed, map.get(breed) - 1);
-				if (map.get(breed) == 0) {
-					count--;
+				if (breed > K + 1) {
+					breed--;
 					break;
 				}
+				set.remove(new node(index, counts[index]));
+				counts[index]++;
+				set.add(new node(index, counts[index]));
+				right++;
 			}
+			result = Math.max(result, set.first().value);
+			int index = map.get(array[left]);
+			set.remove(new node(index, counts[index]));
+			counts[index]--;
+			set.add(new node(index, counts[index]));
+			if (counts[index] == 0) {
+				breed--;
+			}
+			left++;
 		}
 		out.println(result);
 		out.close();
-		System.err.println(System.currentTimeMillis() - startTime);
 	}
 }
 
-class cow implements Comparable<cow> {
-	public int pos, breed;
+class node implements Comparable<node> {
+	public int index, value;
 
-	public cow(int a, int b) {
-		pos = a;
-		breed = b;
+	public node(int a, int b) {
+		index = a;
+		value = b;
 	}
 
-	public int compareTo(cow next) {
-		return pos - next.pos;
+	public int compareTo(node next) {
+		return next.value - value;
 	}
 }
