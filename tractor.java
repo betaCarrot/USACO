@@ -65,3 +65,13 @@ public class tractor {
 		return r >= 0 && r <= 1001 && c >= 0 && c <= 1001;
 	}
 }
+
+class node {
+	public int row, col, count;
+
+	public node(int a, int b, int c) {
+		row = a;
+		col = b;
+		count = c;
+	}
+}
