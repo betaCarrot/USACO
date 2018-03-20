@@ -4,41 +4,67 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 
 public class cbarn {
 	private static int N;
-	private static int[] values;
-	private static int result = Integer.MAX_VALUE;
+	private static int[] array, original;
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader f = new BufferedReader(new FileReader("cbarn.in"));
 		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("cbarn.out")));
 		N = Integer.parseInt(f.readLine());
-		values = new int[N + 1];
-		for (int i = 1; i <= N; i++) {
-			values[i] = Integer.parseInt(f.readLine());
+		array = new int[N];
+		original = new int[N];
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		for (int i = 0; i < N; i++) {
+			int temp = Integer.parseInt(f.readLine());
+			original[i] = temp;
+			array[i] = temp;
 		}
-		for (int start = 1; start <= N; start++) {
-			int count = 0;
-			for (int end = 1; end <= N; end++) {
-				count += values[end] * distance(start, end);
+		long result = 0;
+		while (true) {
+			result = 0;
+			rotate(1);
+			ArrayDeque<Integer> queue = new ArrayDeque<Integer>();
+			boolean valid = true;
+			for (int i = 0; i < N; i++) {
+				for (int k = 0; k < array[i]; k++) {
+					queue.offer(i);
+				}
+				if (queue.size() == 0) {
+					valid = false;
+					break;
+				}
+				int start = queue.poll();
+				result += (long) (i - start) * (i - start);
 			}
-			result = Math.min(result, count);
+			if (valid) {
+				break;
+			}
 		}
 		out.println(result);
 		out.close();
 	}
 
-	public static void printArray(int[] array) {
-		for (int i : array)
-			System.out.print(i + " ");
-		System.out.println();
+	public static void rotate(int offset) {
+		int[] temp = new int[N];
+		for (int i = 0; i < offset; i++) {
+			temp[i] = array[i];
+		}
+		for (int i = offset; i < N; i++) {
+			array[i - offset] = array[i];
+		}
+		for (int i = 0; i < offset; i++) {
+			array[N - offset + i] = temp[i];
+		}
 	}
 
-	public static int distance(int start, int end) {
-		if (end >= start)
-			return end - start;
-		else
-			return N - start + end;
+	public static void printArray(int[] array) {
+		for (int i : array) {
+			System.out.print(i + " ");
+		}
+		System.out.println();
 	}
 }
