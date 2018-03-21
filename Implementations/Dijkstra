@@ -1,0 +1,23 @@
+	public static void dijkstra() {
+		PriorityQueue<node> pq = new PriorityQueue<node>();
+		int[] distances = new int[N];
+		for (int i = 0; i < N; i++) {
+			distances[i] = Integer.MAX_VALUE;
+		}
+		distances[0] = 0;
+		pq.offer(new node(0, 0));
+		while (!pq.isEmpty()) {
+			node curr = pq.poll();
+			int i = curr.vertex;
+			int distance = curr.distance;
+			for (edge e : edges.get(i)) {
+				int j = e.to;
+				int weight = e.weight;
+				if (distance + weight < distances[j]) {
+					distances[j] = distance + weight;
+					pq.offer(new node(j, distances[j]));
+					parent[j] = i;
+				}
+			}
+		}
+	}
