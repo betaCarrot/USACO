@@ -1,0 +1,33 @@
+public static int MST() {
+		int[] distances = new int[N];
+		boolean[] inTree = new boolean[N];
+		for (int i = 0; i < N; i++) {
+			distances[i] = INF;
+		}
+		distances[0] = 0;
+		int treeCost = 0;
+		int treeSize = 0;
+		PriorityQueue<node> pq = new PriorityQueue<node>();
+		pq.offer(new node(0, 0));
+		while (!pq.isEmpty()) {
+			node curr = pq.poll();
+			int i = curr.vertex;
+			int cost = curr.distance;
+			if (inTree[i]) {
+				continue;
+			}
+			treeSize++;
+			treeCost += cost;
+			inTree[i] = true;
+			for (int j = 0; j < N; j++) {
+				if (distances[j] > matrix[i][j]) {
+					distances[j] = matrix[i][j];
+					pq.offer(new node(j, distances[j]));
+				}
+			}
+		}
+		if (treeSize < N) {
+			return INF;
+		}
+		return treeCost;
+	}
