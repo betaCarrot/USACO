@@ -1,3 +1,3 @@
-# helloWorld
+# Greetings Humans!
 
-Greetings Humans!
+Peace to your planet!
