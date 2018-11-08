@@ -1,0 +1,975 @@
+package solutions;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+public class preparation {
+	private static final int C = 0;
+	private static final int H = 1;
+	private static final int D = 2;
+	private static final int S = 3;
+	private static final int A = 0;
+	private static final int T = 9;
+	private static final int J = 10;
+	private static final int Q = 11;
+	private static final int K = 12;
+
+	private static int[] normal = new int[] { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+	private static int[] leaps = new int[] { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+	private static ArrayList<Integer> list = new ArrayList<Integer>();
+	private static ArrayList<int[]> markList = new ArrayList<int[]>();
+	private static int seconds, minutes, hours, day, month, year;
+
+	public static void main(String[] args) throws IOException {
+
+	}
+
+	public static void removeDuplicates() {
+		for (int i = 0; i < list.size(); i++) {
+			int k = 0;
+			while (k < list.size()) {
+				if ((k != i) && (list.get(k).compareTo(list.get(i)) == 0))
+					list.remove(k);
+				else
+					k++;
+			}
+		}
+	}
+
+	public static double round(double d, int digits) {
+		double temp = Math.pow(10, digits);
+		return Math.round(d * temp) / temp;
+	}
+
+	public static double roundDown(double d, int digits) {
+		double temp = Math.pow(10, digits);
+		return (int) (d * temp) / temp;
+	}
+
+	public static double roundUp(double d, int digits) {
+		double temp = Math.pow(10, digits);
+		return (int) (d * temp + 1) / temp;
+	}
+
+	public static String rwtz(double result, int n) {
+		double roundingExp = Math.pow(10, n);
+		result = (double) Math.round(result * roundingExp) / roundingExp;
+		String s = result + "";
+		int index = -1;
+		for (int i = 0; i < s.length(); i++) {
+			if (s.substring(i, i + 1).equals("."))
+				index = i;
+		}
+		String check = s.substring(index + 1);
+		int toAdd = 0;
+		if (check.length() < n) {
+			toAdd = n - check.length();
+			for (int i = 0; i < toAdd; i++)
+				s += "0";
+		}
+		return s;
+	}
+
+	public static int roundToMultiple(double d, int multiple) {
+		return (int) (multiple * (Math.round(d / multiple)));
+	}
+
+	public static int gcd(int a, int b) {
+		while (b > 0) {
+			int temp = b;
+			b = a % b;
+			a = temp;
+		}
+		return a;
+	}
+
+	public static int gcd(int[] input) {
+		int result = input[0];
+		for (int i = 1; i < input.length; i++)
+			result = gcd(result, input[i]);
+		return result;
+	}
+
+	public static int lcm(int a, int b) {
+		return a * (b / gcd(a, b));
+	}
+
+	private static int lcm(int[] input) {
+		int result = input[0];
+		for (int i = 1; i < input.length; i++)
+			result = lcm(result, input[i]);
+		return result;
+	}
+
+	public static int daysInMonth(int month, int year) {
+		if (isLeap(year))
+			return leaps[month];
+		return normal[month];
+	}
+
+	public static boolean isLeap(int year) {
+		if ((year % 400) == 0)
+			return true;
+		if ((year % 100) == 0)
+			return false;
+		if ((year % 4) == 0)
+			return true;
+		return false;
+	}
+
+	// Sunday is 0, Saturday is 6.
+	public static int dayOfWeek(int year, int month, int date) {
+		Calendar c = Calendar.getInstance();
+		c.set(year, month, date);
+		return c.get(Calendar.DAY_OF_WEEK) - 1;
+	}
+
+	public static void timeTick() {
+		seconds++;
+		if (seconds == 60) {
+			seconds = 0;
+			minutes++;
+			if (minutes == 60) {
+				minutes = 0;
+				hours++;
+				if (hours == 24) {
+					hours = 0;
+				}
+			}
+		}
+	}
+
+	public static void timeDecrement() {
+		seconds--;
+		if (seconds < 0) {
+			minutes--;
+			if (minutes < 0) {
+				hours--;
+				if (hours < 0)
+					hours = 23;
+				minutes = 59;
+			}
+			seconds = 59;
+		}
+	}
+
+	public static int[] parseDateYMD(String line) {
+		String[] ss = line.split("-");
+		int year = Integer.parseInt(ss[0]);
+		int month = monthToIndex(ss[1].toUpperCase());
+		int date = Integer.parseInt(ss[2]);
+		if (year < 50)
+			year += 2000;
+		else if (year < 100)
+			year += 1900;
+		return new int[] { date, month, year };
+	}
+
+	public static int[] parseDateDMY(String line) {
+		String[] ss = line.split("-");
+		int date = Integer.parseInt(ss[0]);
+		int month = monthToIndex(ss[1].toUpperCase());
+		int year = Integer.parseInt(ss[2]);
+		if (year < 50)
+			year += 2000;
+		else if (year < 100)
+			year += 1900;
+		return new int[] { date, month, year };
+	}
+
+	public static int[] parseTimeHMS(String line) {
+		if (line.indexOf("M") >= 0) {
+			String[] HMSAP = line.split(":");
+			int H = Integer.parseInt(HMSAP[0]);
+			int M = Integer.parseInt(HMSAP[1]);
+			String[] SAP = HMSAP[2].split(" ");
+			int S = Integer.parseInt(SAP[0]);
+			String AP = SAP[1];
+			if (AP.equals("AM") && H == 12) {
+				H = 0;
+			} else if (AP.equals("PM") && H != 12) {
+				H += 12;
+			}
+			return new int[] { H, M, S };
+		} else {
+			String[] HMS = line.split(":");
+			int H = Integer.parseInt(HMS[0]);
+			int M = Integer.parseInt(HMS[1]);
+			int S = Integer.parseInt(HMS[2]);
+			return new int[] { H, M, S };
+		}
+	}
+
+	public static int[] parseTimeHM(String line) {
+		if (line.indexOf("M") >= 0) {
+			String[] HMAP = line.split(":");
+			int H = Integer.parseInt(HMAP[0]);
+			String[] MAP = HMAP[1].split(" ");
+			int M = Integer.parseInt(MAP[0]);
+			String AP = MAP[1];
+			if (AP.equals("AM") && H == 12) {
+				H = 0;
+			} else if (AP.equals("PM") && H != 12) {
+				H += 12;
+			}
+			return new int[] { H, M };
+		} else {
+			String[] HM = line.split(":");
+			int H = Integer.parseInt(HM[0]);
+			int M = Integer.parseInt(HM[1]);
+			return new int[] { H, M };
+		}
+	}
+
+	public static void printTime12(int hour, int minute) {
+		String AP = "";
+		if (hour == 0) {
+			AP = "AM";
+			hour = 12;
+		} else if (hour < 12)
+			AP = "AM";
+		else if (hour == 12) {
+			AP = "PM";
+		} else {
+			AP = "PM";
+			hour -= 12;
+		}
+		String h = hour + "";
+		String m = minute + "";
+		if (hour < 10)
+			h = "0" + h;
+		if (minute < 10)
+			m = "0" + m;
+		System.out.println(h + ":" + m + " " + AP);
+	}
+
+	public static void printTime12(int hour, int minute, int second) {
+		String AP = "";
+		if (hour == 0) {
+			AP = "AM";
+			hour = 12;
+		} else if (hour < 12)
+			AP = "AM";
+		else if (hour == 12) {
+			AP = "PM";
+		} else {
+			AP = "PM";
+			hour -= 12;
+		}
+		String h = hour + "";
+		String m = minute + "";
+		String s = second + " ";
+		if (hour < 10)
+			h = "0" + h;
+		if (minute < 10)
+			m = "0" + m;
+		if (second < 10)
+			s = "0" + s;
+		System.out.println(h + ":" + m + ":" + s + AP);
+	}
+
+	public static void printTime24(int hour, int minute) {
+		String h = hour + "";
+		String m = minute + "";
+		if (hour < 10)
+			h = "0" + h;
+		if (minute < 10)
+			m = "0" + m;
+		System.out.println(h + ":" + m);
+	}
+
+	public static void printTime24(int hour, int minute, int second) {
+		String h = hour + "";
+		String m = minute + "";
+		String s = second + "";
+		if (hour < 10)
+			h = "0" + h;
+		if (minute < 10)
+			m = "0" + m;
+		if (second < 10)
+			s = "0" + s;
+		System.out.println(h + ":" + m + ":" + s);
+	}
+
+	public static void printDateYMD(int year, int monthIndex, int date) {
+		String y = year + "";
+		// y = y.substring(2); 1999 to 99£¬ 2000 to 00
+		String m = indexToMonth(monthIndex);
+		// m = m.toUpperCase(); in case of need
+		String d = date + "";
+		if (m.length() == 1)
+			m = "0" + m;
+		if (d.length() == 1)
+			d = "0" + d;
+		System.out.println(y + "-" + m + "-" + d);
+	}
+
+	public static void printDateDMY(int date, int monthIndex, int year) {
+		String y = year + "";
+		// y = y.substring(2); 1999 to 99, 2000 to 00
+		String m = indexToMonth(monthIndex);
+		// m = m.toUpperCase(); in case of need
+		String d = date + "";
+		if (m.length() == 1)
+			m = "0" + m;
+		if (d.length() == 1)
+			d = "0" + d;
+		System.out.println(d + "-" + m + "-" + y);
+	}
+
+	public static void printArray(int[] array) {
+		for (int i : array)
+			System.out.print(i + " ");
+		System.out.println();
+	}
+
+	public static void printArray(String[] array) {
+		for (String s : array)
+			System.out.print(s + " ");
+		System.out.println();
+	}
+
+	public static void printArray(boolean[] array) {
+		for (boolean b : array) {
+			if (b == true)
+				System.out.print(true + "  ");
+			else
+				System.out.print(false + " ");
+		}
+		System.out.println();
+	}
+
+	public static void printMatrix(int[][] matrix) {
+		for (int[] is : matrix) {
+			for (int i : is)
+				System.out.print(i + " ");
+			System.out.println();
+		}
+	}
+
+	public static void printMatrix(boolean[][] matrix) {
+		for (boolean[] bs : matrix) {
+			for (boolean b : bs) {
+				if (b == true)
+					System.out.print(true + "  ");
+				else
+					System.out.print(false + " ");
+			}
+			System.out.println();
+		}
+	}
+
+	public static void printArrayListInteger(ArrayList<Integer> array) {
+		for (int i : array)
+			System.out.print(i + " ");
+		System.out.println();
+	}
+
+	public static void printArrayListString(ArrayList<String> array) {
+		for (String s : array)
+			System.out.print(s + " ");
+		System.out.println();
+	}
+
+	public static int charToIndexUpper(String s) {
+		int ascii = (int) s.charAt(0);
+		return ascii - 65;
+	}
+
+	public static int charToIndexLower(String s) {
+		int ascii = (int) s.charAt(0);
+		return ascii - 97;
+	}
+
+	public static char indexToCharUpper(int i) {
+		return (char) (i + 65);
+	}
+
+	public static char indexToCharLower(int i) {
+		return (char) (i + 97);
+	}
+
+	public static String baseConvert(int number, int base) {
+		return Integer.toString(Integer.parseInt((Integer.toString(number)), 10), base);
+	}
+
+	public static boolean checkPalindrome(String s) {
+		char[] chars = s.toCharArray();
+		for (int i = 0; i < chars.length; i++) {
+			if (chars[i] != chars[chars.length - 1 - i])
+				return false;
+		}
+		return true;
+	}
+
+	public static boolean isPrime(int n) {
+		if (n == 1)
+			return false;
+		if (n == 2)
+			return true;
+		if (n % 2 == 0)
+			return false;
+		for (int i = 3; i * i <= n; i += 2) {
+			if (n % i == 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static void setUpArrayList(int n) {
+		markList.clear();
+		fillArray(0, n, new int[n]);
+	}
+
+	public static boolean valid(int n, int[] array, int index) {
+		for (int i = 0; i < index; i++) {
+			if (array[i] == n)
+				return false;
+		}
+		return true;
+	}
+
+	public static void fillArray(int count, int n, int[] temp) {
+		if (count == n) {
+			int[] temp1 = new int[temp.length];
+			for (int k = 0; k < temp.length; k++)
+				temp1[k] = temp[k];
+			markList.add(temp1);
+			return;
+		}
+		for (int i = 0; i < n; i++) {
+			if (!valid(i, temp, count)) // permutation
+				continue;
+			temp[count] = i;
+			fillArray(count + 1, n, temp);
+		}
+	}
+
+	public static int monthToIndex(String s) {
+		if (s.equals("JAN"))
+			return 0;
+		if (s.equals("FEB"))
+			return 1;
+		if (s.equals("MAR"))
+			return 2;
+		if (s.equals("APR"))
+			return 3;
+		if (s.equals("MAY"))
+			return 4;
+		if (s.equals("JUN"))
+			return 5;
+		if (s.equals("JUL"))
+			return 6;
+		if (s.equals("AUG"))
+			return 7;
+		if (s.equals("SEP"))
+			return 8;
+		if (s.equals("OCT"))
+			return 9;
+		if (s.equals("NOV"))
+			return 10;
+		else
+			return 11;
+	}
+
+	public static String indexToMonth(int i) {
+		if (i == 0)
+			return "Jan";
+		if (i == 1)
+			return "Feb";
+		if (i == 2)
+			return "Mar";
+		if (i == 3)
+			return "Apr";
+		if (i == 4)
+			return "May";
+		if (i == 5)
+			return "Jun";
+		if (i == 6)
+			return "Jul";
+		if (i == 7)
+			return "Aug";
+		if (i == 8)
+			return "Sep";
+		if (i == 9)
+			return "Oct";
+		if (i == 10)
+			return "Nov";
+		return "Dec";
+	}
+
+	public static void dayIncrement() {
+		day++;
+		if (isLeap(year)) {
+			if (day > leaps[month]) {
+				day = 1;
+				month++;
+				if (month > 11) {
+					month = 0;
+					year++;
+				}
+			}
+		} else {
+			if (day > normal[month]) {
+				day = 1;
+				month++;
+				if (month > 11) {
+					month = 0;
+					year++;
+				}
+			}
+		}
+	}
+
+	public static void dayDecrement() {
+		day--;
+		if (day == 0) {
+			month--;
+			if (month < 0) {
+				year--;
+				month = 11;
+			}
+			if (isLeap(year)) {
+				day = leaps[month];
+			} else
+				day = normal[month];
+		}
+	}
+
+	public static boolean isValid(int x, int y, int N) {
+		return x >= 0 && x < N && y >= 0 && y < N;
+	}
+
+	public static int maxIndex(int[] array) {
+		int max = array[0];
+		int maxIndex = 0;
+		for (int i = 1; i < array.length; i++) {
+			if (array[i] > max) {
+				maxIndex = i;
+				max = array[i];
+			}
+		}
+		return maxIndex;
+	}
+
+	public static int minIndex(int[] array) {
+		int min = array[0];
+		int minIndex = 0;
+		for (int i = 1; i < array.length; i++) {
+			if (array[i] < min) {
+				minIndex = i;
+				min = array[i];
+			}
+		}
+		return minIndex;
+	}
+
+	public static int max(int[] array) {
+		int max = Integer.MIN_VALUE;
+		for (int i = 0; i < array.length; i++) {
+			max = Math.max(max, array[i]);
+		}
+		return max;
+	}
+
+	public static int min(int[] array) {
+		int min = Integer.MAX_VALUE;
+		for (int i = 0; i < array.length; i++) {
+			min = Math.min(min, array[i]);
+		}
+		return min;
+	}
+
+	private static int parseCardNumber(String card) {
+		String s = card.substring(0, 1);
+		if (s.equals("A"))
+			return A;
+		if (s.equals("T"))
+			return T;
+		if (s.equals("J"))
+			return J;
+		if (s.equals("Q"))
+			return Q;
+		if (s.equals("K"))
+			return K;
+		return Integer.parseInt(card) - 1;
+	}
+
+	private static int parseCardSuit(String card) {
+		String s = card.substring(1);
+		if (s.equals("C"))
+			return C;
+		if (s.equals("H"))
+			return H;
+		if (s.equals("D"))
+			return D;
+		return S;
+	}
+}
+
+class card {
+	private int suit;
+	private int value;
+
+	private static final int C = 0;
+	private static final int D = 1;
+	private static final int H = 2;
+	private static final int S = 3;
+	private static final int A = 0;
+	private static final int T = 9;
+	private static final int J = 10;
+	private static final int Q = 11;
+	private static final int K = 12;
+
+	public card(int i) {
+		suit = (i - 1) / 13;
+		value = (i - 1) % 13;
+	}
+
+	public int getSuit() {
+		return suit;
+	}
+
+	public int getValue() {
+		return value;
+	}
+
+	public static String getNumber(card c) {
+		if (c.getValue() == A)
+			return "A";
+		else if (c.getValue() == T)
+			return "T";
+		else if (c.getValue() == J)
+			return "J";
+		else if (c.getValue() == Q)
+			return "Q";
+		else if (c.getValue() == K)
+			return "K";
+		else
+			return (c.getValue() + 1) + "";
+	}
+
+	public static String getSuit(card c) {
+		if (c.getSuit() == 100)
+			return "100";
+		if (c.getSuit() == C)
+			return "C";
+		if (c.getSuit() == D)
+			return "D";
+		if (c.getSuit() == H)
+			return "H";
+		else
+			return "S";
+	}
+
+	public String toString() {
+		return getNumber(this) + getSuit(this);
+	}
+
+	public boolean equals(card next) {
+		return this.value == next.value;
+	}
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+public class permute {
+	public static int[] array;
+	public static boolean[] used;
+	public static int N;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader f = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(f.readLine());
+		array = new int[N];
+		used = new boolean[N];
+		solve(0);
+	}
+
+	public static void solve(int index) {
+		if (index == N) {
+			printArray(array);
+			return;
+		}
+		for (int i = 0; i < N; i++) {
+			if (used[i])
+				continue;
+			array[index] = i;
+			used[i] = true;
+			solve(index + 1);
+			array[index] = 0;
+			used[i] = false;
+		}
+	}
+
+	public static void printArray(int[] array) {
+		for (int i : array)
+			System.out.print(i + " ");
+		System.out.println();
+	}
+}
+
+
+public class linearSieve {
+	public static int MAX = (int) 1e9;
+	public static int[] lpf = new int[MAX + 1];
+	public static ArrayList<Integer> primes = new ArrayList<Integer>();
+
+	public static void main(String[] args) {
+		for (int i = 2; i <= MAX; i++) {
+			if (lpf[i] == 0) {
+				primes.add(i);
+				lpf[i] = i;
+			}
+			for (int j = 0; j < primes.size() && i * primes.get(j) <= MAX; j++) {
+				lpf[i * primes.get(j)] = primes.get(j);
+				if (i % primes.get(j) == 0) {
+					break;
+				}
+			}
+		}
+	}
+}
+
+
+public class eSieve {
+	public static int MAX = (int) 1e9;
+	public static boolean[] visited = new boolean[MAX + 1];
+	public static boolean[] isPrime = new boolean[MAX + 1];
+	public static ArrayList<Integer> primes = new ArrayList<Integer>();
+
+	public static void main(String[] args) {
+		for (int i = 2; i <= MAX; i++) {
+			if (visited[i])
+				continue;
+			isPrime[i] = true;
+			primes.add(i);
+			for (int j = 1; j * i <= MAX; j++) {
+				visited[i * j] = true;
+			}
+		}
+	}
+}
+
+
+public class IntegerToRoman {
+	public static int N;
+
+	public static void main(String[] args) throws IOException {
+		BufferedReader f = new BufferedReader(new InputStreamReader(System.in));
+		N = Integer.parseInt(f.readLine());
+		StringBuilder sb = new StringBuilder();
+		while (N >= 1000) {
+			sb.append("M");
+			N -= 1000;
+		}
+		while (N >= 900) {
+			sb.append("CM");
+			N -= 900;
+		}
+		while (N >= 500) {
+			sb.append("D");
+			N -= 500;
+		}
+		while (N >= 400) {
+			sb.append("CD");
+			N -= 400;
+		}
+		while (N >= 100) {
+			sb.append("C");
+			N -= 100;
+		}
+		while (N >= 90) {
+			sb.append("XC");
+			N -= 90;
+		}
+		while (N >= 50) {
+			sb.append("L");
+			N -= 50;
+		}
+		while (N >= 40) {
+			sb.append("XL");
+			N -= 40;
+		}
+		while (N >= 10) {
+			sb.append("X");
+			N -= 10;
+		}
+		while (N >= 9) {
+			sb.append("IX");
+			N -= 9;
+		}
+		while (N >= 5) {
+			sb.append("V");
+			N -= 5;
+		}
+		while (N >= 4) {
+			sb.append("IV");
+			N -= 4;
+		}
+		while (N >= 1) {
+			sb.append("I");
+			N--;
+		}
+		System.out.println(sb.toString());
+	}
+}
+
+
+public class RomanToInteger {
+	public static void main(String[] args) throws IOException {
+		BufferedReader f = new BufferedReader(new InputStreamReader(System.in));
+		String str = f.readLine();
+		int res = 0;
+		int index = 0;
+		int N = str.length();
+		while (index < N) {
+			if (index + 1 < N) {
+				if (str.substring(index, index + 2).equals("CM")) {
+					res += 900;
+					index += 2;
+					continue;
+				}
+				if (str.substring(index, index + 2).equals("CD")) {
+					res += 400;
+					index += 2;
+					continue;
+				}
+				if (str.substring(index, index + 2).equals("XC")) {
+					res += 90;
+					index += 2;
+					continue;
+				}
+				if (str.substring(index, index + 2).equals("XL")) {
+					res += 40;
+					index += 2;
+					continue;
+				}
+				if (str.substring(index, index + 2).equals("IX")) {
+					res += 9;
+					index += 2;
+					continue;
+				}
+				if (str.substring(index, index + 2).equals("IV")) {
+					res += 4;
+					index += 2;
+					continue;
+				}
+			}
+			if (str.substring(index, index + 1).equals("M")) {
+				res += 1000;
+				index++;
+				continue;
+			}
+			if (str.substring(index, index + 1).equals("D")) {
+				res += 500;
+				index++;
+				continue;
+			}
+			if (str.substring(index, index + 1).equals("C")) {
+				res += 100;
+				index++;
+				continue;
+			}
+			if (str.substring(index, index + 1).equals("L")) {
+				res += 50;
+				index++;
+				continue;
+			}
+			if (str.substring(index, index + 1).equals("X")) {
+				res += 10;
+				index++;
+				continue;
+			}
+			if (str.substring(index, index + 1).equals("V")) {
+				res += 5;
+				index++;
+				continue;
+			}
+			if (str.substring(index, index + 1).equals("I")) {
+				res++;
+				index++;
+				continue;
+			}
+		}
+		System.out.println(res);
+	}
+}
+
+ function BellmanFord(list vertices, list edges, vertex source)
+   ::distance[],predecessor[]
+   
+   // This implementation takes in a graph, represented as
+   // lists of vertices and edges, and fills two arrays
+   // (distance and predecessor) about the shortest path
+   // from the source to each vertex
+   
+   // Step 1: initialize graph
+   for each vertex v in vertices:
+       distance[v] := inf             // At the beginning , all vertices have a weight of infinity
+       predecessor[v] := null         // And a null predecessor
+   
+   distance[source] := 0              // The weight is zero at the source
+   
+   // Step 2: relax edges repeatedly
+   for i from 1 to size(vertices)-1:
+       for each edge (u, v) with weight w in edges:
+           if distance[u] + w < distance[v]:
+               distance[v] := distance[u] + w
+               predecessor[v] := u
+   
+   // Step 3: check for negative-weight cycles
+   for each edge (u, v) with weight w in edges:
+       if distance[u] + w < distance[v]:
+           error "Graph contains a negative-weight cycle"
+   
+   return distance[], predecessor[]
+
+
+public static long qpow(long a, long b) {
+		long res = 1;
+		while (b > 0) {
+			if ((b & 1) == 1) {
+				res *= a;
+				res %= MOD;
+			}
+			a *= a;
+			a %= MOD;
+			b >>= 1;
+		}
+		return res;
+	}
+}
+
+public class selection {
+	public static ArrayDeque<Integer> queue = new ArrayDeque<Integer>();
+	public static int N, M;
+
+	public static void main(String[] args) {
+		N = 6;
+		M = 3;
+		solve(0);
+	}
+
+	public static void solve(int index) {
+		if (queue.size() > M || queue.size() + (N - index) < M) {
+			return;
+		}
+		if (index == N) {
+			for (int i : queue) {
+				System.out.print(i + " ");
+			}
+			System.out.println();
+			return;
+		}
+		solve(index + 1);
+		queue.offer(index);
+		solve(index + 1);
+		queue.pollLast();
+	}
+}
+
