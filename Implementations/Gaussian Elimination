@@ -1,0 +1,23 @@
+		for (int i = 0; i < N; i++) {
+			for (int j = i; j < N; j++) {
+				if (Math.abs(c[j][i]) > 1e-8) {
+					for (int k = 0; k < N; k++) {
+						double t = c[i][k];
+						c[i][k] = c[j][k];
+						c[j][k] = t;
+					}
+					double t = b[i];
+					b[i] = b[j];
+					b[j] = t;
+				}
+			}
+			for (int j = 0; j < N; j++) {
+				if (i == j)
+					continue;
+				double rate = c[j][i] / c[i][i];
+				for (int k = i; k < N; k++) {
+					c[j][k] -= c[i][k] * rate;
+				}
+				b[j] -= b[i] * rate;
+			}
+		}
