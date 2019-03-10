@@ -9,6 +9,7 @@
 					double t = b[i];
 					b[i] = b[j];
 					b[j] = t;
+					break;
 				}
 			}
 			for (int j = 0; j < N; j++) {
