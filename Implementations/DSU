@@ -32,6 +32,9 @@
 	public static void join(int target1, int target2) {
 		int root1 = find(target1);
 		int root2 = find(target2);
+		if (size[root1] > size[root2]) {
+			root1 = root2 ^ root1 ^ (root2 = root1);
+		}
 		if (root1 != root2) {
 			parent[root1] = root2;
 			size[root2] += size[root1];
