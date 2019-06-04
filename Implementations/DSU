@@ -23,8 +23,9 @@
 		}
 		int i = target;
 		while (i != parentIndex) {
-			i = parent[i];
+			int next = parent[i];
 			parent[i] = parentIndex;
+			i = next;
 		}
 		return parentIndex;
 	}
