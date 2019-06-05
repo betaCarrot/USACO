@@ -21,3 +21,16 @@
 			}
 		}
 	}
+
+class node implements Comparable<node> {
+	public int vertex, distance;
+
+	public node(int a, int b) {
+		vertex = a;
+		distance = b;
+	}
+
+	public int compareTo(node next) {
+		return Integer.compare(distance, next.distance);
+	}
+}
